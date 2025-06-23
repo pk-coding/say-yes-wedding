@@ -7,6 +7,8 @@ add_action('wp_footer', 'print_panel_ajax_obj_script', 5);
 add_action('wp_ajax_get_user_result', 'handle_get_user_result');
 add_action('wp_ajax_get_partner_result', 'handle_get_partner_result');
 
+add_action('wp_ajax_get_result_details', 'get_result_details');
+
 add_action('wp_ajax_user_delete_result', 'user_delete_result');
 
 
@@ -35,7 +37,7 @@ function panel_enqueue_assets()
 
     wp_enqueue_script(
         'jspdf',
-        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
         array(),
         '2.5.1',
         true
@@ -59,7 +61,6 @@ function print_panel_ajax_obj_script()
 <?php
 }
 
-
 // ---- DISPLAY USER CALCULATOR RESULTS IN page-panel.php FILE ----
 function render_user_calculator_results($user_id)
 {
@@ -71,10 +72,21 @@ function render_user_calculator_results($user_id)
 
     if (!empty($results)) {
         foreach ($results as $row) {
+            $result_data = maybe_unserialize($row->result);
+            if (!is_array($result_data)) {
+                $result_data = [];
+            }
+
+            $guestCountText = isset($result_data['guestCount']) ? ' - Gości: ' . (int)$result_data['guestCount'] : '';
+            $label = 'Wynik z ' . date('d.m.Y H:i:s', strtotime($row->created_at));
+            if (isset($result_data['totalBudget'])) {
+                $label = 'Budżet: ' . number_format($result_data['totalBudget'], 0, ',', ' ') . ' zł' . $guestCountText . ' (' . date('d.m.Y H:i:s', strtotime($row->created_at)) . ')';
+            }
+
             echo '<div class="result-item" data-id="' . esc_attr($row->id) . '">
-                <span class="result-text">' . esc_html($row->result) . '</span>
-                <button class="delete-btn">Usuń</button>
-                <button class="generate-pdf-btn">Pobierz PDF z tym wynikiem</button>
+            <span class="result-label">' . esc_html($label) . '</span>
+            <button class="show-details-btn">Szczegóły</button>
+            <button class="delete-btn">Usuń</button>
             </div>';
         }
     } else {
@@ -83,12 +95,71 @@ function render_user_calculator_results($user_id)
 }
 
 
+// ---- Get details result
+function get_result_details()
+{
+    global $wpdb;
+    $id = intval($_POST['id'] ?? 0);
+    if (!$id) {
+        wp_send_json_error('Brak ID');
+    }
+
+    $current_user_id = get_current_user_id();
+
+    // Pobierz podstawowy wynik
+    $result = $wpdb->get_row($wpdb->prepare(
+        "SELECT user_id, result FROM {$wpdb->prefix}calculator_results WHERE id = %d",
+        $id
+    ));
+
+    if (!$result) {
+        wp_send_json_error('Wynik nie istnieje');
+    }
+
+    $isOwner = ($result->user_id == $current_user_id);
+
+    // Sprawdź partnera
+    $partner_id = $wpdb->get_var($wpdb->prepare(
+        "SELECT sender_user_id FROM {$wpdb->prefix}user_invites 
+         WHERE invited_user_id = %d AND status = 'accepted'",
+        $current_user_id
+    ));
+
+    if (!$partner_id) {
+        $partner_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT invited_user_id FROM {$wpdb->prefix}user_invites 
+             WHERE sender_user_id = %d AND status = 'accepted'",
+            $current_user_id
+        ));
+    }
+
+    if (!$isOwner && $partner_id != $result->user_id) {
+        wp_send_json_error('Brak dostępu do wyniku');
+    }
+
+    // Rozpakuj podstawowy wynik (deserialize)
+    $result_data = maybe_unserialize($result->result);
+
+    // Pobierz pomysły powiązane z tym wynikiem
+    $ideas = $wpdb->get_results($wpdb->prepare(
+        "SELECT idea_name, idea_price FROM {$wpdb->prefix}calculator_ideas WHERE result_id = %d",
+        $id
+    ), ARRAY_A);
+
+    // Dodaj pomysły do danych wyników (pod kluczem 'pomysly')
+    $result_data['pomysly'] = $ideas ?: [];
+
+    // Zwróć całość
+    wp_send_json_success($result_data);
+}
+
+
 // ---- DISPLAY PARTNER CALCULATOR RESULTS IN page-panel.php FILE ----
 function get_partner_results($current_user_id)
 {
     global $wpdb;
 
-    // Znajdujemy partnera przez wp_user_invites (szukamy zaakceptowanego zaproszenia gdzie current_user jest zaproszonym)
+    // Znajdujemy partnera przez wp_user_invites
     $partner_id = $wpdb->get_var(
         $wpdb->prepare(
             "SELECT sender_user_id FROM {$wpdb->prefix}user_invites 
@@ -98,7 +169,6 @@ function get_partner_results($current_user_id)
     );
 
     if (!$partner_id) {
-        // Jeśli nie znaleźliśmy partnera, spróbujmy odwrotnie (gdzie current_user jest nadawcą i zaproszenie zaakceptowane)
         $partner_id = $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT invited_user_id FROM {$wpdb->prefix}user_invites 
@@ -118,10 +188,20 @@ function get_partner_results($current_user_id)
 
         if (!empty($partner_results)) {
             foreach ($partner_results as $row) {
-                echo '<div class="result-item" data-id="' . esc_attr($row->id) . '">
-                <span class="result-text">' . esc_html($row->result) . '</span>
-                <button class="generate-partner-pdf-btn">Pobierz PDF z tym wynikiem</button>
-            </div>';
+                $result_data = maybe_unserialize($row->result);
+                if (!is_array($result_data)) {
+                    $result_data = [];
+                }
+
+                $guestCountText = isset($result_data['guestCount']) ? ' - Gości: ' . (int)$result_data['guestCount'] : '';
+                $label = 'Wynik z ' . date('d.m.Y H:i:s', strtotime($row->created_at));
+                if (isset($result_data['totalBudget'])) {
+                    $label = 'Budżet: ' . number_format($result_data['totalBudget'], 0, ',', ' ') . ' zł' . $guestCountText . ' (' . date('d.m.Y H:i:s', strtotime($row->created_at)) . ')';
+                }
+                echo '<div class="partner-result-item" data-id="' . esc_attr($row->id) . '">
+                <span class="result-label">' . esc_html($label) . '</span>
+                <button class="show-partner-details-btn">Szczegóły</button>
+                </div>';
             }
         } else {
             echo '<p>Partner nie ma zapisanych wyliczeń.</p>';
@@ -135,7 +215,7 @@ function get_partner_results($current_user_id)
 // ---- AJAX HANDELR GET USER RESULTS FOR CREATE PDF FILE ----
 function handle_get_user_result()
 {
-    // Sprawdzamy nonce
+    // Weryfikacja nonce
     if (!check_ajax_referer('user_results_nonce', 'security', false)) {
         wp_send_json_error('Niepoprawny token bezpieczeństwa.', 403);
     }
@@ -145,7 +225,7 @@ function handle_get_user_result()
         wp_send_json_error('Nie jesteś zalogowany.', 403);
     }
 
-    // Pobieramy ID wyniku z żądania
+    // Walidacja ID wyniku
     $result_id = isset($_POST['result_id']) ? intval($_POST['result_id']) : 0;
     if (!$result_id) {
         wp_send_json_error('Brak ID wyniku.', 400);
@@ -154,22 +234,38 @@ function handle_get_user_result()
     global $wpdb;
     $table_name = $wpdb->prefix . 'calculator_results';
 
-    // Pobieramy wynik tylko jeśli należy do aktualnego użytkownika
-    $result = $wpdb->get_row(
-        $wpdb->prepare("SELECT result FROM $table_name WHERE id = %d AND user_id = %d", $result_id, $user_id),
+    // Pobieranie rekordu użytkownika z tabeli (result + created_at)
+    $row = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT result, created_at FROM $table_name WHERE id = %d AND user_id = %d",
+            $result_id,
+            $user_id
+        ),
         ARRAY_A
     );
 
-    if (!$result) {
+    if (!$row) {
         wp_send_json_error('Nie znaleziono wyniku.', 404);
     }
 
-    wp_send_json_success($result);
-}
+    // Deserializacja danych wyniku
+    $parsed_result = maybe_unserialize($row['result']);
+    if (!is_array($parsed_result)) {
+        wp_send_json_error('Nieprawidłowy format danych.', 400);
+    }
 
-// ---- AJAX HANDELR GET PARTNER RESULTS FOR CREATE PDF FILE ----
+    // Zwracamy dane jako JSON
+    wp_send_json_success([
+        'detail' => $parsed_result,
+        'created_at' => $row['created_at'],
+    ]);
+};
+
+
+
 function handle_get_partner_result()
 {
+    // Weryfikacja nonce
     if (!check_ajax_referer('partner_results_nonce', 'security', false)) {
         wp_send_json_error('Niepoprawny token bezpieczeństwa.', 403);
     }
@@ -179,11 +275,13 @@ function handle_get_partner_result()
         wp_send_json_error('Nie jesteś zalogowany.', 403);
     }
 
+    // Pobranie ID partnera
     $partner_id = get_partner_id_for_user($user_id);
     if (!$partner_id) {
         wp_send_json_error('Nie znaleziono partnera.', 404);
     }
 
+    // Walidacja ID wyniku
     $result_id = isset($_POST['result_id']) ? intval($_POST['result_id']) : 0;
     if (!$result_id) {
         wp_send_json_error('Brak ID wyniku.', 400);
@@ -192,17 +290,32 @@ function handle_get_partner_result()
     global $wpdb;
     $table_name = $wpdb->prefix . 'calculator_results';
 
-    $result = $wpdb->get_row(
-        $wpdb->prepare("SELECT result FROM $table_name WHERE id = %d AND user_id = %d", $result_id, $partner_id),
+    // Pobranie danych wyniku partnera
+    $row = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT result, created_at FROM $table_name WHERE id = %d AND user_id = %d",
+            $result_id,
+            $partner_id
+        ),
         ARRAY_A
     );
 
-    if (!$result) {
+    if (!$row) {
         wp_send_json_error('Nie znaleziono wyniku partnera.', 404);
     }
 
-    wp_send_json_success($result);
-}
+    // Deserializacja danych
+    $parsed_result = maybe_unserialize($row['result']);
+    if (!is_array($parsed_result)) {
+        wp_send_json_error('Nieprawidłowy format danych.', 400);
+    }
+
+    // Zwrócenie danych jako JSON
+    wp_send_json_success([
+        'detail' => $parsed_result,
+        'created_at' => $row['created_at'],
+    ]);
+};
 
 
 // ----
@@ -294,8 +407,40 @@ function get_user_role_label($user_id)
 
 
 // ---- DELETE USER CALCULATOR RESULT ----
+// function user_delete_result()
+// {
+//     check_ajax_referer('user_delete_result_nonce', 'security');
+
+//     if (!isset($_POST['result_id'])) {
+//         wp_send_json_error('Brak ID wyniku.');
+//     }
+
+//     $result_id = intval($_POST['result_id']);
+//     $user_id = get_current_user_id();
+
+//     global $wpdb;
+//     $table = $wpdb->prefix . 'calculator_results';
+
+//     // Sprawdzenie, czy wynik należy do użytkownika
+//     $owner = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $table WHERE id = %d", $result_id));
+//     if ($owner != $user_id) {
+//         wp_send_json_error('Nie masz uprawnień do usunięcia tego wyniku.');
+//     }
+
+//     $deleted = $wpdb->delete($table, ['id' => $result_id]);
+
+//     if ($deleted) {
+//         wp_send_json_success();
+//     } else {
+//         wp_send_json_error('Nie udało się usunąć wyniku.');
+//     }
+// }
 function user_delete_result()
 {
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Musisz być zalogowany.');
+    }
+
     check_ajax_referer('user_delete_result_nonce', 'security');
 
     if (!isset($_POST['result_id'])) {
@@ -308,17 +453,46 @@ function user_delete_result()
     global $wpdb;
     $table = $wpdb->prefix . 'calculator_results';
 
-    // Sprawdzenie, czy wynik należy do użytkownika
     $owner = $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $table WHERE id = %d", $result_id));
-    if ($owner != $user_id) {
+
+    if (intval($owner) !== intval($user_id)) {
         wp_send_json_error('Nie masz uprawnień do usunięcia tego wyniku.');
+        return;
     }
 
     $deleted = $wpdb->delete($table, ['id' => $result_id]);
 
-    if ($deleted) {
+    if ($deleted !== false) {
         wp_send_json_success();
     } else {
         wp_send_json_error('Nie udało się usunąć wyniku.');
     }
+}
+
+
+// ----
+function get_partner_id($current_user_id)
+{
+    global $wpdb;
+
+    // Szukamy partnera w tabeli user_invites (status = accepted)
+    $partner_id = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT sender_user_id FROM {$wpdb->prefix}user_invites 
+             WHERE invited_user_id = %d AND status = 'accepted' LIMIT 1",
+            $current_user_id
+        )
+    );
+
+    if (!$partner_id) {
+        $partner_id = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT invited_user_id FROM {$wpdb->prefix}user_invites 
+                 WHERE sender_user_id = %d AND status = 'accepted' LIMIT 1",
+                $current_user_id
+            )
+        );
+    }
+
+    return $partner_id ?: 0;
 }

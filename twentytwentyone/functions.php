@@ -835,11 +835,6 @@ if (file_exists($statute)) {
 	require_once $statute;
 };
 
-$calculatortest = get_stylesheet_directory() . '/includes/calculatortest.php';
-if (file_exists($calculatortest)) {
-	require_once $calculatortest;
-};
-
 $invite = get_stylesheet_directory() . '/includes/invite.php';
 if (file_exists($invite)) {
 	require_once $invite;
@@ -858,4 +853,9 @@ if (file_exists($resetpassword)) {
 $inviteconfirm = get_stylesheet_directory() . '/includes/inviteconfirm.php';
 if (file_exists($inviteconfirm)) {
 	require_once $inviteconfirm;
+};
+
+$calculatortest = get_stylesheet_directory() . '/includes/calculatortest.php';
+if (file_exists($calculatortest)) {
+	require_once $calculatortest;
 };

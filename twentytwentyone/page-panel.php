@@ -57,6 +57,8 @@ global $wpdb;
             </div>
         </div>
     </div>
+    <div id="result-details"></div>
+    <!-- echo '<div id="result-details"></div>'; -->
 </div>
 
 <?php get_footer(); ?>
