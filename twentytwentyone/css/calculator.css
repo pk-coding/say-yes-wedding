@@ -1,54 +1,529 @@
+:root {
+    --color-main: #d2691e;
+    --color-accent: #f8b400;
+    --color-bg: #fff9f2;
+    --color-dark-accent: #b35900;
+    --color-success: #2e7d32;
+    --color-warning: #d1400f;
+    --color-range-start: #f8b400;
+    --color-range-end: #ffdaa2;
+    --color-range-thumb: #d2691e;
+    --color-range-thumb-hover: #a65300;
+}
+
 body {
-    font-family: Arial, sans-serif;
     margin: 0 auto;
     padding: 2rem;
-    background-color: #f8f8f8;
+    background-color: var(--color-bg);
 }
 
-h2 {
-    margin-top: 2rem;
-}
-
-label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: bold;
-}
-
-select,
-input[type="number"],
-input[type="text"],
-input[type="checkbox"] {
-    margin-top: 0.3rem;
-    padding: 0.4rem;
-    width: 100%;
-    max-width: 400px;
-}
-
-.category {
-    background: #fff;
-    border: 4px solid #90abf5;
-    border-radius: 6px;
-    margin: 1rem 0;
+/* panel-nav */
+.panel-nav {
+    font-family: 'Parisienne', cursive;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-around;
+    /* gap: 16px; */
+    background-color: var(--color-bg);
     padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid var(--color-accent);
+    margin-bottom: 1rem;
+    /* font-size: 2rem; */
+    box-shadow: 0 4px 8px rgba(248, 180, 0, 0.2);
 }
 
-.subcategory {
-    margin-left: 1rem;
-    padding-left: 1rem;
-    border-left: 4px solid #90abf5;
+.panel-nav a {
+    text-decoration: none;
 }
 
+.panel-nav button {
+    font-family: 'Parisienne', cursive;
+    width: 156px;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+    /* font-size: 2rem; */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.panel-nav button:hover {
+    background-color: var(--color-main);
+    transform: translateY(-2px);
+}
+
+#main-title {
+    font-family: 'Parisienne', cursive;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-around;
+    color: var(--color-main);
+    gap: 16px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--color-bg);
+    padding: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#main-title:hover {
+    cursor: default;
+}
+
+/* BUDGGET BOX CONTAINER */
+.budget-box {
+    font-family: 'Parisienne', cursive;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background-color: var(--color-bg);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid var(--color-accent);
+    /* font-size: 2rem; */
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(248, 180, 0, 0.2);
+}
+
+/* .budget-box-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 12px;
+}
+
+.budget-box-details span {
+    width: 50%;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1rem;
+}
+
+.budget-box-details button {
+    width: 50%;
+    padding: 6px 12px;
+    font-size: 1rem;
+    background-color: var(--color-main, #d2691e);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    white-space: normal;
+} */
+
+/* REMOVE DEFAULT STYLE FROM USER AGENT STYLESHEET */
+.budget-box label {
+    margin-bottom: 0;
+}
+
+.say-yes,
+.say-yes label {
+    font-weight: 600;
+}
+
+#guestCount,
+ #guestCount label {
+   font-weight: 600;
+}
+
+#budgetTotal,
+#budgetTotal label {
+   font-weight: 600;
+}
+
+.budget-box span,
+.budget-box label {
+    /* font-size: 1.7rem; */
+    color: var(--color-main);
+    margin-right: 6px;
+    white-space: nowrap;
+}
+
+.budget-box input[type="number"] {
+    width: 100px;
+    padding: 6px 10px;
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    background-color: var(--color-bg);
+    color: var(--color-main);
+}
+
+#validateGuestCountBtn {
+    font-family: 'Parisienne', cursive;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+    /* font-size: 2rem; */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#validateGuestCountBtn:hover {
+    background-color: var(--color-main);
+}
+
+#remainingBudget {
+    /* flex-basis: 100%;
+    width: 100%; */
+    text-align: start;
+    color: var(--color-success);
+    /* margin-left: auto; */
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Container kategorii: flex 3 kolumny */
+.categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+/* Box kategorii */
 .category-box {
-    border: 4px solid #90abf5;
-    padding: 15px;
-    margin-bottom: 20px;
+    flex: 1 1 calc(33.333% - 20px);
+    background: var(--color-bg);
+    border: 2px solid var(--color-accent);
+    border-radius: 10px;
+    padding: 15px 20px;
+    box-shadow: 0 3px 8px rgba(248, 180, 0, 0.3);
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
 
+.category-box:hover {
+    box-shadow: 0 5px 15px rgba(248, 180, 0, 0.6);
+}
+
+/* Nagłówek kategorii jako przycisk rozwijania */
+.category-box h3 {
+    font-family: 'Parisienne', cursive;
+    text-align: center;
+    /* font-size: 2rem; */
+    color: var(--color-main);
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(248, 180, 0, 0.2);
+    transition: color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid var(--color-accent);
+}
+
+.category-box h3:hover {
+    color: var(--color-dark-main);
+}
+
+.category-box input[type="number"] {
+    width: 125px;
+}
+
+/* SUBCATEGORIES - DEFAULT HIDDEN */
+.subcategory {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    margin-top: 10px;
+}
+
+/* Kiedy podkategorie są aktywne - rozwinięte */
+.category-box.active .subcategory {
+    max-height: 1000px;
+    /* Dodane aby wszystkie podkategorie były widoczne po rozwinięciu */
+}
+
+/* slider-row layout */
 .slider-row {
-    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1px;
+    width: 100%;
+    margin-bottom: 12px;
+    flex-wrap: nowrap;
 }
 
-.hidden {
-    display: none !important;
+/* Etykiety sliderów */
+.slider-row label {
+    font-family: 'Cormorant Garamond', serif;
+    min-width: 120px;
+    color: var(--color-dark-main);
+    /* font-size: 1.1rem; */
+}
+
+/* Slidery */
+input[type="range"].category-budget,
+input[type="range"].subcategory-budget {
+    flex: 1 1 auto;
+    min-width: 120px;
+    max-width: 180px;
+}
+
+input.fixed-subcategory-checkbox {
+    padding: 4px 6px;
+    border: 1px solid var(--color-accent);
+    border-radius: 50%;
+    font-weight: 400;
+    color: var(--color-main);
+    accent-color: var(--color-accent);
+    background-color: var(--color-bg);
+    cursor: pointer;
+    transform: scale(1.3);
+}
+
+input.fixed-subcategory-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(248, 180, 0, 0.4);
+}
+
+input.fixed-subcategory-checkbox:checked {
+    accent-color: var(--color-main);
+}
+
+/* CATEGROY IDEAS */
+.idea-item,
+.subcategory#pomysly {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+    margin-bottom: 1rem;
+}
+
+.idea-item span,
+#ideaName {
+    flex: 1 1 50%;
+    /* font-size: 1.2rem; */
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-accent, #f8b400);
+    background-color: #fff9f2;
+    resize: vertical;
+    background-color: var(--color-bg);
+    color: var(--color-main);
+}
+
+#ideaPrice {
+    flex: 0 0 30%;
+    max-width: 140px;
+    /* font-size: 1.2rem; */
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-accent, #f8b400);
+    background-color: #fff9f2;
+    text-align: right;
+    width: 230px;
+}
+
+.idea-item .edit-idea-btn {
+    flex: 0 0 25%;
+    /* font-size: 1.2rem; */
+    padding: 0.5rem 1rem;
+    font-family: 'Parisienne', cursive;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.idea-item .delete-idea-btn,
+#addIdeaBtn {
+    flex: 0 0 auto;
+    /* font-size: 1.2rem; */
+    padding: 0.5rem 1rem;
+    font-family: 'Parisienne', cursive;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#saveBudgetBtn {
+    display: block;
+    width: 100%;
+    margin: 1rem auto;
+    font-family: 'Parisienne', cursive;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: white;
+    /* font-size: 2rem; */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+#saveBudgetBtn:hover {
+    background-color: var(--color-dark-accent);
+    transform: translateY(-2px);
+}
+
+.edit-idea-btn:hover,
+.delete-idea-btn:hover,
+#addIdeaBtn:hover,
+#saveBudgetBtn:hover {
+    background-color: var(--color-main);
+}
+
+#pomyslyBudget {
+    color: var(--color-success);
+}
+
+/* spany dla długich nazw kategorii */
+.label-line {
+    display: block;
+}
+
+/* Inputy liczbowe obok */
+input[type="text"],
+input[type="number"] {
+    width: 70px;
+    padding: 4px 6px;
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--color-main);
+    background-color: var(--color-bg);
+}
+
+/* Checkbox i label w jednej linii */
+.slider-row label>input[type="checkbox"] {
+    margin-left: 8px;
+    transform: scale(1.2);
+    vertical-align: middle;
+}
+
+/* Warning text */
+.warning {
+    color: var(--color-warning);
+    font-size: 0.8rem;
+    margin-left: auto;
+    min-width: 100px;
+}
+
+/* Styl dla sekcji budżetu kategorii (góra boxa) */
+.category-box .category-budget {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Etykieta budżetu (np. "Budżet dla kategorii: Transport") */
+.category-box .slider-row.category-budget label {
+    font-weight: 600;
+    color: var(--color-dark-main);
+    margin-bottom: 4px;
+}
+
+/* Slider w sekcji kategorii */
+.category-box .slider-row.category-budget input[type="range"] {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+/* Styl dla wszystkich suwaków */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--color-range-start), var(--color-range-end));
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+/* Styl thumb dla WebKit (Chrome, Safari) */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-range-thumb);
+    border: 2px solid var(--color-bg);
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--color-range-thumb-hover);
+    transform: scale(1.1);
+}
+
+/* Styl thumb dla Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-range-thumb);
+    border: 2px solid var(--color-bg);
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    background: var(--color-range-thumb-hover);
+    transform: scale(1.1);
+}
+
+/* Firefox track style */
+input[type="range"]::-moz-range-track {
+    height: 6px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--color-range-start), var(--color-range-end));
+}
+
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .category-box {
+        flex: 1 1 100%;
+    }
+
+    .budget-box {
+        flex-direction: column;
+        gap: 12px;
+        position: static;
+        /* żeby sticky nie kolidowało na małych ekranach */
+    }
+
+    .panel-nav {
+        font-size: 1.5rem;
+        gap: 8px;
+    }
+
+    .panel-nav button,
+    #validateGuestCountBtn {
+        font-size: 1.5rem;
+        padding: 0.4rem;
+    }
+
+    .budget-box input[type="number"],
+    .slider-row label {
+        font-size: 1.2rem;
+        width: 100%;
+        max-width: none;
+    }
 }
