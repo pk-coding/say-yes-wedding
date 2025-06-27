@@ -11,6 +11,10 @@
     --color-range-thumb-hover: #a65300;
 }
 
+* {
+    font-family: 'Nunito', sans-serif !important;
+}
+
 body {
     margin: 0 auto;
     padding: 2rem;
@@ -19,7 +23,7 @@ body {
 
 /* panel-nav */
 .panel-nav {
-    font-family: 'Parisienne', cursive;
+    /* font-family: 'Great Vibes', cursive; */
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -39,14 +43,27 @@ body {
 }
 
 .panel-nav button {
-    font-family: 'Parisienne', cursive;
-    width: 156px;
+    display: inline-block;
+    white-space: nowrap;
+    width: auto;
+    padding: 0.5rem 1rem;
+    /* font-family: 'Nunito', sans-serif; */
+    font-size: 1rem;
+    border: none;
+    background-color: #0073e6;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    /* font-family: 'Great Vibes', cursive; */
+    /* display: inline-block;
+  white-space: nowrap;
+  width: auto;
     border: none;
     border-radius: 8px;
     padding: 0.5rem;
-    color: white;
+    color: white; */
     /* font-size: 2rem; */
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -56,7 +73,7 @@ body {
 }
 
 #main-title {
-    font-family: 'Parisienne', cursive;
+    /* font-family: 'Great Vibes', cursive; */
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -76,7 +93,7 @@ body {
 
 /* BUDGGET BOX CONTAINER */
 .budget-box {
-    font-family: 'Parisienne', cursive;
+    /* font-family: 'Great Vibes', cursive; */
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -127,6 +144,37 @@ body {
 } */
 
 /* REMOVE DEFAULT STYLE FROM USER AGENT STYLESHEET */
+
+.budget-box button {
+    display: inline-block;
+    white-space: nowrap;
+    width: auto;
+    padding: 0.5rem 1rem;
+    /* font-family: 'Nunito', sans-serif; */
+    font-size: 1rem;
+    border: none;
+    background-color: #0073e6;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    /* font-family: 'Great Vibes', cursive; */
+    /* display: inline-block;
+  white-space: nowrap;
+  width: auto;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white; */
+    /* font-size: 2rem; */
+    /* cursor: pointer; */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.budget-box button:hover {
+    background-color: var(--color-main);
+    transform: translateY(-2px);
+}
+
 .budget-box label {
     margin-bottom: 0;
 }
@@ -137,13 +185,13 @@ body {
 }
 
 #guestCount,
- #guestCount label {
-   font-weight: 600;
+#guestCount label {
+    font-weight: 600;
 }
 
 #budgetTotal,
 #budgetTotal label {
-   font-weight: 600;
+    font-weight: 600;
 }
 
 .budget-box span,
@@ -164,7 +212,7 @@ body {
 }
 
 #validateGuestCountBtn {
-    font-family: 'Parisienne', cursive;
+    /* font-family: 'Great Vibes', cursive; */
     border: none;
     border-radius: 8px;
     padding: 0.5rem;
@@ -218,7 +266,7 @@ body {
 
 /* Nagłówek kategorii jako przycisk rozwijania */
 .category-box h3 {
-    font-family: 'Parisienne', cursive;
+    /* font-family: 'Great Vibes', cursive; */
     text-align: center;
     /* font-size: 2rem; */
     color: var(--color-main);
@@ -252,6 +300,12 @@ body {
     /* Dodane aby wszystkie podkategorie były widoczne po rozwinięciu */
 }
 
+.fixed-price-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 /* slider-row layout */
 .slider-row {
     display: flex;
@@ -265,10 +319,10 @@ body {
 
 /* Etykiety sliderów */
 .slider-row label {
-    font-family: 'Cormorant Garamond', serif;
+    /* font-family: 'Great Vibes', serif; */
     min-width: 120px;
     color: var(--color-dark-main);
-    /* font-size: 1.1rem; */
+    font-size: 1.1rem;
 }
 
 /* Slidery */
@@ -301,70 +355,104 @@ input.fixed-subcategory-checkbox:checked {
 }
 
 /* CATEGROY IDEAS */
-.idea-item,
-.subcategory#pomysly {
+/* Kontener formularza na pomysł */
+.idea-form {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: nowrap;
     margin-bottom: 1rem;
 }
 
-.idea-item span,
-#ideaName {
-    flex: 1 1 50%;
-    /* font-size: 1.2rem; */
+#pomysly-costs {
+    color: #28303D;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Textarea zajmuje większość miejsca */
+.idea-form textarea#ideaName {
+    flex: 1 1 60%;
+    min-width: 0;
+    /* ważne przy flexbox, żeby nie roztłaczało */
     padding: 0.5rem;
     border-radius: 6px;
     border: 1px solid var(--color-accent, #f8b400);
-    background-color: #fff9f2;
     resize: vertical;
-    background-color: var(--color-bg);
-    color: var(--color-main);
+    font-size: 1rem;
 }
 
-#ideaPrice {
-    flex: 0 0 30%;
+/* Input number zajmuje mniej miejsca */
+.idea-form input#ideaPrice {
+    flex: 0 0 20%;
     max-width: 140px;
-    /* font-size: 1.2rem; */
     padding: 0.5rem;
     border-radius: 6px;
     border: 1px solid var(--color-accent, #f8b400);
-    background-color: #fff9f2;
     text-align: right;
-    width: 230px;
+    font-size: 1rem;
 }
 
-.idea-item .edit-idea-btn {
-    flex: 0 0 25%;
-    /* font-size: 1.2rem; */
-    padding: 0.5rem 1rem;
-    font-family: 'Parisienne', cursive;
-    border-radius: 6px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.idea-item .delete-idea-btn,
-#addIdeaBtn {
+/* Przycisk dodawania pomysłu */
+.idea-form button#addIdeaBtn {
     flex: 0 0 auto;
-    /* font-size: 1.2rem; */
     padding: 0.5rem 1rem;
-    font-family: 'Parisienne', cursive;
     border-radius: 6px;
     border: none;
-    color: white;
+
+    color: #fff;
     cursor: pointer;
+    font-size: 1rem;
     transition: background-color 0.3s ease;
 }
 
+.idea-form button#addIdeaBtn:hover {
+    background-color: #d99200;
+}
+
+/* Category Pomysly */
+.idea-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    flex-wrap: nowrap;
+}
+
+/* Tekst pomysłu zajmuje większość szerokości */
+.idea-item span {
+    flex: 1 1 60%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-accent, #f8b400);
+    background-color: var(--color-bg, #fff9f2);
+    color: var(--color-range-start, #000);
+    font-size: 1rem;
+    overflow-wrap: break-word;
+}
+
+/* Przykładowe przyciski w idea-item, np. edytuj / usuń */
+.idea-item button {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    background-color: var(--color-accent, #f8b400);
+}
+
+.idea-item button:hover {
+    background-color: #d99200;
+}
+
+/* SAVED FORM */
 #saveBudgetBtn {
     display: block;
     width: 100%;
     margin: 1rem auto;
-    font-family: 'Parisienne', cursive;
+    /* font-family: 'Great Vibes', cursive; */
     border: none;
     border-radius: 8px;
     padding: 0.75rem;
@@ -380,15 +468,23 @@ input.fixed-subcategory-checkbox:checked {
     transform: translateY(-2px);
 }
 
-.edit-idea-btn:hover,
-.delete-idea-btn:hover,
-#addIdeaBtn:hover,
-#saveBudgetBtn:hover {
-    background-color: var(--color-main);
+#tooltip,
+#saveMessage.success {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
-#pomyslyBudget {
-    color: var(--color-success);
+#saveMessage.error {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
 /* spany dla długich nazw kategorii */
@@ -496,34 +592,141 @@ input[type="range"]::-moz-range-track {
 }
 
 
-/* Responsywność */
+/* ANNIMATION */
+.category-box {
+    opacity: 0;
+    transform: translateY(30px);
+    animation-duration: 0.6s;
+    animation-fill-mode: forwards;
+}
+
+/* Animacje wejścia */
+@keyframes slide-in-left {
+    0% {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-right {
+    0% {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-top {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-bottom {
+    0% {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+/* RESPONSYWNOŚĆ */
+
+/* Ekrany mniejsze niż 1200px – 2 kolumny kategorii */
+@media (max-width: 1200px) {
+    .category-box {
+        flex: 1 1 calc(50% - 20px);
+    }
+
+    .slider-row {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .idea-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .idea-form textarea,
+    .idea-form input,
+    .idea-form button {
+        width: 100%;
+    }
+
+    .idea-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .idea-item span,
+    .idea-item button {
+        width: 100%;
+    }
+}
+
+/* Ekrany mniejsze niż 768px – 1 kolumna kategorii */
 @media (max-width: 768px) {
     .category-box {
         flex: 1 1 100%;
     }
 
+    .panel-nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
     .budget-box {
         flex-direction: column;
-        gap: 12px;
-        position: static;
-        /* żeby sticky nie kolidowało na małych ekranach */
-    }
-
-    .panel-nav {
-        font-size: 1.5rem;
-        gap: 8px;
-    }
-
-    .panel-nav button,
-    #validateGuestCountBtn {
-        font-size: 1.5rem;
-        padding: 0.4rem;
+        align-items: flex-start;
     }
 
     .budget-box input[type="number"],
-    .slider-row label {
-        font-size: 1.2rem;
+    .budget-box button {
         width: 100%;
-        max-width: none;
+    }
+
+    #main-title {
+        flex-direction: column;
+    }
+
+    .slider-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .idea-form {
+        flex-direction: column;
+    }
+
+    .idea-form textarea,
+    .idea-form input,
+    .idea-form button {
+        width: 100%;
+    }
+
+    .idea-item {
+        flex-direction: column;
+        align-items: stretch;
     }
 }

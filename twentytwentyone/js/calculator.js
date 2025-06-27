@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', initBudgetTool);
 
+document.addEventListener("DOMContentLoaded", () => {
+    const boxes = document.querySelectorAll(".category-box");
+    const animations = ["slide-in-left", "slide-in-right", "slide-in-top", "slide-in-bottom"];
+
+    boxes.forEach((box, index) => {
+        const delay = index * 100; // opóźnienie co 100ms
+        const animation = animations[index % animations.length]; // naprzemiennie
+        box.style.animationName = animation;
+        box.style.animationDelay = `${delay}ms`;
+    });
+});
+
 function getInitialState() {
     const guestInput = document.getElementById('guestCount');
     const budgetInput = document.getElementById('budgetTotal');
@@ -24,8 +36,9 @@ function getInitialState() {
         validationMessages: {},
         nameInput: document.getElementById('ideaName'),
         priceInput: document.getElementById('ideaPrice'),
-        pomyslyBox: document.getElementById('box-pomysly'),
+        pomyslyBox: document.getElementById('pomysly'),
         pomyslySliderValue: document.getElementById('pomysly-slider_value'),
+        ideaPriceInput: document.getElementById('ideaPrice'),
     };
 }
 
@@ -50,22 +63,8 @@ document.getElementById('ideaPrice').addEventListener('input', function () {
     }
 });
 
-const state = getInitialState();
 
-// const state = {
-//     totalBudget: parseInt(document.getElementById('budgetTotal').value, 10) || 0,
-//     remainingBudget: parseInt(document.getElementById('remainingBudget').value, 10) || 0,
-//     guestCount: parseInt(document.getElementById('guestCount').value, 10) || 0,
-//     categoryValues: {},
-//     subcategoryValues: {},
-//     // fixedCategory: {},
-//     fixedSubcategory: {},
-//     validationMessages: {},
-//     nameInput: document.getElementById('ideaName'),
-//     priceInput: document.getElementById('ideaPrice'),
-//     pomyslyBox: document.getElementById('pomysly'),
-//     pomyslySliderValue: document.getElementById('pomysly-slider_value'),
-// };
+const state = getInitialState();
 
 const categoryShares = {
     "lokal-catering": 0.42,
@@ -143,79 +142,91 @@ const minPerPerson = {
 
 // ----
 function initBudgetTool() {
-    setupBudgetInputHandler();
-    setupGuestCountInputHandler();
-    setupSliderHandlers();
     setupFixedCheckboxHandlers();
     setupAddIdeaHandler();
 
     const input = document.getElementById('budgetTotal');
     if (input) {
         state.totalBudget = parseFloat(input.value) || 0;
-        distributeInitialBudget();
-    }
-}
-
-function setupBudgetInputHandler() {
-    const input = document.getElementById('budgetTotal');
-    if (!input) return;
-
-    input.addEventListener('input', () => {
-        state.totalBudget = parseFloat(input.value) || 0;
-        distributeInitialBudget();
-    });
-}
-
-function setupGuestCountInputHandler() {
-    const guestInput = document.getElementById('guestCount');
-    if (!guestInput) return;
-
-    guestInput.addEventListener('input', () => {
-        state.guestCount = parseInt(guestInput.value, 10) || 0;
-    });
-}
-
-function distributeInitialBudget() {
-    state.categoryValues = {};
-    state.subcategoryValues = {};
-    state.remainingBudget = state.totalBudget;
-
-    for (const [catId, share] of Object.entries(categoryShares)) {
-        const catBudget = Math.round(state.totalBudget * share);
-        state.categoryValues[catId] = catBudget;
-        state.remainingBudget -= catBudget;
-
-        const catSlider = document.getElementById(`${catId}-slider`);
-        const catInput = document.getElementById(`${catId}-slider_value`);
-        if (catSlider && catInput) {
-            catSlider.max = (catId === "pomysly") ? state.remainingBudget : state.totalBudget;
-            catSlider.value = catBudget;
-            catInput.value = catBudget;
-        }
-
-        const subs = subcategoryShares[catId];
-        if (!subs) continue;
-
-        state.subcategoryValues[catId] = {};
-        for (const [subId, subShare] of Object.entries(subs)) {
-            const subBudget = Math.round(catBudget * subShare);
-            state.subcategoryValues[catId][subId] = subBudget;
-
-            const subSlider = document.getElementById(subId);
-            const subInput = document.getElementById(`${subId}_value`);
-            if (subSlider && subInput) {
-                subSlider.max = catBudget;
-                subSlider.value = subBudget;
-                subInput.value = subBudget;
-            }
-        }
+        distributeInitialBudgetRespectingFixed();
     }
 
+    setupSliderHandlers();
+
+    state.remainingBudget = state.totalBudget - getCurrentAllocatedTotal();
     updateRemainingBudget();
 }
 
+// ---- budgetBox SERVICES
+const tooltip = document.getElementById('tooltip');
 
-// ----
+// 1. Zmiana liczby gości
+document.getElementById('changeGuestsBtn').addEventListener('click', () => {
+    const input = document.getElementById('guestCount');
+    const val = parseInt(input.value, 10);
+    if (isNaN(val) || val < 0) return;
+
+    state.guestCount = val;
+    tooltip.textContent = 'Zmieniono liczbę gości';
+    tooltip.style.color = 'green'; tooltip.style.display = 'inline';
+    setTimeout(() => tooltip.style.display = 'none', 2000);
+});
+
+// 2. Zmiana budżetu
+document.getElementById('changeBudgetBtn').addEventListener('click', () => {
+    const input = document.getElementById('budgetTotal');
+    const newBudget = parseFloat(input.value) || 0;
+    const diff = newBudget - state.totalBudget;
+
+    if (diff === 0) return;
+
+    const confirmed = confirm('Czy zaktualizować ceny kategorii i podkategorii do wartości domyślnych?');
+    state.totalBudget = newBudget;
+
+    if (confirmed) {
+        distributeInitialBudgetRespectingFixed();
+    } else {
+        state.remainingBudget += diff;
+        updateRemainingBudget();
+    }
+
+    tooltip.textContent = 'Zmieniono budżet';
+    tooltip.style.color = 'green'; tooltip.style.display = 'inline';
+    setTimeout(() => tooltip.style.display = 'none', 2000);
+});
+
+// 3. Sprawdź ceny
+document.getElementById('checkPricesBtn').addEventListener('click', () => {
+    checkPricesHandler();
+    tooltip.textContent = 'Sprawdzone ceny';
+    tooltip.style.color = 'green'; tooltip.style.display = 'inline';
+    setTimeout(() => tooltip.style.display = 'none', 2000);
+});
+
+// --------
+// 1. Zmiana liczby gości - Enter
+document.getElementById('guestCount').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('changeGuestsBtn').click();
+    }
+});
+
+// 2. Zmiana budżetu - Enter
+document.getElementById('budgetTotal').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('changeBudgetBtn').click();
+    }
+});
+
+// 3. Sprawdź ceny - Enter (jeśli chcesz np. Enter w dowolnym miejscu – np. focus na przycisku)
+document.getElementById('checkPricesBtn').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('checkPricesBtn').click();
+    }
+});
+
+
+// --------
 function setupSliderHandlers() {
     // Kategorie
     document.querySelectorAll(".category-slider").forEach(slider => {
@@ -234,16 +245,9 @@ function setupSliderHandlers() {
                 return;
             }
 
-            const delta = newVal - oldVal;
-            if (delta > 0 && delta > state.remainingBudget) {
-                slider.value = oldVal;
-                input.value = oldVal;
-                return;
-            }
-
             state.categoryValues[catId] = newVal;
             input.value = newVal;
-            state.remainingBudget -= delta;
+            updateRemainingBudget();
 
             if (catId === "pomysly") {
                 updateSubcategoryRemaining(catId);
@@ -288,12 +292,6 @@ function setupSliderHandlers() {
                     const catMax = state.categoryValues[catId] || 0;
                     const available = catMax - totalSubSum;
 
-                    if (newVal > available) {
-                        slider.value = currentVal;
-                        input.value = currentVal;
-                        return;
-                    }
-
                     state.subcategoryValues[catId][subId] = newVal;
                     updateSubcategoryRemaining(catId);
                     validateSubcategory(subId, newVal);
@@ -312,6 +310,146 @@ function setupSliderHandlers() {
     });
 }
 
+const validateBtn = document.getElementById("validateGuestCountBtn");
+if (validateBtn) {
+    validateBtn.addEventListener("click", () => {
+        validateAllSubcategories();
+    });
+}
+
+
+
+function hasAnyAllocation() {
+    const total = Object.values(state.categoryValues || {}).reduce((sum, val) => sum + val, 0);
+    return total > 0;
+}
+
+
+function distributeInitialBudget() {
+    state.categoryValues = {};
+    state.subcategoryValues = {};
+    state.remainingBudget = state.totalBudget;
+
+    for (const [catId, share] of Object.entries(categoryShares)) {
+        const catBudget = Math.round(state.totalBudget * share);
+        state.categoryValues[catId] = catBudget;
+        state.remainingBudget -= catBudget;
+
+        const catSlider = document.getElementById(`${catId}-slider`);
+        const catInput = document.getElementById(`${catId}-slider_value`);
+        if (catSlider && catInput) {
+            catSlider.max = state.totalBudget;
+            catSlider.value = catBudget;
+            catSlider.step = 100;
+            catSlider.disabled = false;
+            catInput.value = catBudget;
+        }
+
+        const subs = subcategoryShares[catId];
+        if (!subs) continue;
+
+        state.subcategoryValues[catId] = {};
+        for (const [subId, subShare] of Object.entries(subs)) {
+            const subBudget = Math.round(catBudget * subShare);
+            state.subcategoryValues[catId][subId] = subBudget;
+
+            const subSlider = document.getElementById(subId);
+            const subInput = document.getElementById(`${subId}_value`);
+            if (subSlider && subInput) {
+                subSlider.max = catBudget;
+                subSlider.value = subBudget;
+                subSlider.step = 100;
+                subSlider.disabled = false;
+                subInput.value = subBudget;
+            }
+        }
+
+        updateSubcategoryRemaining(catId);
+    }
+
+    updateRemainingBudget();
+    setupSliderHandlers();
+}
+
+
+function distributeInitialBudgetRespectingFixed() {
+    state.remainingBudget = state.totalBudget;
+    for (const [catId, share] of Object.entries(categoryShares)) {
+        const newCatBudget = Math.round(state.totalBudget * share);
+        state.categoryValues[catId] = newCatBudget;
+
+        // ustawienia sliderów
+        const catSlider = document.getElementById(`${catId}-slider`);
+        const catInput = document.getElementById(`${catId}-slider_value`);
+        if (catSlider && catInput) {
+            catSlider.value = newCatBudget;
+            catInput.value = newCatBudget;
+            catSlider.max = state.totalBudget;
+            catSlider.step = 100;
+            catSlider.disabled = false;
+        }
+
+        const subs = subcategoryShares[catId];
+        if (!subs) continue;
+
+        state.subcategoryValues[catId] = state.subcategoryValues[catId] || {};
+        for (const [subId, subShare] of Object.entries(subs)) {
+            const isFixed = state.fixedSubcategory[catId]?.[subId];
+            if (isFixed) continue;
+
+            const subBudget = Math.round(newCatBudget * subShare);
+            state.subcategoryValues[catId][subId] = subBudget;
+
+            const subSlider = document.getElementById(subId);
+            const subInput = document.getElementById(`${subId}_value`);
+            if (subSlider && subInput) {
+                subSlider.value = subBudget;
+                subInput.value = subBudget;
+                subSlider.max = newCatBudget;
+                subSlider.step = 100;
+                subSlider.disabled = false;
+            }
+        }
+
+        updateSubcategoryRemaining(catId);
+    }
+
+    updateRemainingBudget();
+    setupSliderHandlers(); // 👈 TO JEST KLUCZ
+}
+
+
+// ----
+function updateRemainingBudget() {
+    state.remainingBudget = state.totalBudget - getCurrentAllocatedTotal();
+
+    const remainingBox = document.getElementById('remainingBudget');
+    const pomyslyBudget = document.getElementById('pomyslyBudget');
+    const messageBox = document.getElementById('pomyslyMessage');
+
+    const isDeficit = state.remainingBudget < 0;
+    const formatted = Math.abs(state.remainingBudget).toLocaleString();
+    const color = isDeficit ? "red" : "green";
+    const text = isDeficit
+        ? `Brakuje: ${formatted} zł`
+        : `Do rozdysponowania: ${formatted} zł`;
+
+    if (remainingBox) {
+        remainingBox.textContent = text;
+        remainingBox.style.color = color;
+    }
+
+    if (pomyslyBudget) {
+        pomyslyBudget.textContent = isDeficit
+            ? `Brakuje na pomysły: ${formatted} zł`
+            : `Dostępny budżet na pomysły: ${formatted} zł`;
+        pomyslyBudget.style.color = color;
+    }
+
+    if (messageBox && !isDeficit) {
+        messageBox.textContent = '';
+    }
+}
 
 // ----
 function updateSubcategoryRemaining(catId) {
@@ -325,7 +463,6 @@ function updateSubcategoryRemaining(catId) {
         infoBox.textContent = `Pozostało do podziału: ${remaining.toLocaleString()} zł`;
     }
 }
-
 
 // ----
 function redistributeSubcategories(catId) {
@@ -369,25 +506,40 @@ function redistributeSubcategories(catId) {
     updateSubcategoryRemaining(catId);
 }
 
-
 // ----
 function updateRemainingBudget() {
+    const allocated = getCurrentAllocatedTotal();
+    state.remainingBudget = state.totalBudget - allocated;
+
     const remainingBox = document.getElementById('remainingBudget');
-    if (remainingBox) {
-        remainingBox.textContent = `Do rozdysponowania: ${state.remainingBudget.toLocaleString()} zł`;
-    }
-
     const pomyslyBudget = document.getElementById('pomyslyBudget');
-    if (pomyslyBudget) {
-        pomyslyBudget.textContent = `Dostępny budżet na pomysły: ${state.remainingBudget.toLocaleString()} zł`;
+    const messageBox = document.getElementById('pomyslyMessage');
+
+    const formatted = Math.abs(state.remainingBudget).toLocaleString();
+
+    const isDeficit = state.remainingBudget < 0;
+
+    const textColor = isDeficit ? "red" : "green";
+    const remainingText = isDeficit
+        ? `Brakuje: ${formatted} zł`
+        : `Pozostało: ${formatted} zł`;
+
+    if (remainingBox) {
+        remainingBox.textContent = remainingText;
+        remainingBox.style.color = textColor;
     }
 
-    const messageBox = document.getElementById('pomyslyMessage');
-    if (messageBox) {
+    if (pomyslyBudget) {
+        pomyslyBudget.textContent = isDeficit
+            ? `Brakuje na pomysły: ${formatted} zł`
+            : `Dostępny budżet na pomysły: ${formatted} zł`;
+        pomyslyBudget.style.color = textColor;
+    }
+
+    if (messageBox && !isDeficit) {
         messageBox.textContent = '';
     }
 }
-
 
 // ----
 function setupFixedCheckboxHandlers() {
@@ -470,43 +622,76 @@ function getFixedSubcategoriesSum(catId) {
         .reduce((sum, [subId]) => sum + (state.subcategoryValues[catId][subId] || 0), 0);
 }
 
+function getCurrentAllocatedTotal() {
+    let total = 0;
+
+    // Kategorie (pomysły też są kategorią)
+    for (const value of Object.values(state.categoryValues)) {
+        total += value || 0;
+    }
+
+    // Pomysły (jeśli dodajesz je osobno — trzeba je też doliczyć)
+    const ideaItems = state.pomyslyBox ? state.pomyslyBox.querySelectorAll('.idea-item') : [];
+    ideaItems.forEach(item => {
+        const text = item.textContent || "";
+        const match = text.match(/- ([\d\s]+) zł/);
+        if (match) {
+            const amount = parseInt(match[1].replace(/\s/g, ''), 10);
+            total += amount || 0;
+        }
+    });
+
+    return total;
+}
+
+function validateSubcategory(subId, value) {
+    const warningBox = document.getElementById(`warning-${subId}`);
+    const minPerGuest = minPerPerson[subId] || 0;
+    const minValue = minPerGuest * state.guestCount;
+
+    if (!warningBox) return;
+
+    if (value < minValue) {
+        const message = `Kwota może być zbyt niska (minimum: ${minValue.toLocaleString("pl-PL")} zł dla ${state.guestCount} osób).`;
+        warningBox.textContent = message;
+        warningBox.style.color = "red";
+        warningBox.classList.add("warning");
+        warningBox.classList.remove("success");
+        state.validationMessages[subId] = message;
+    } else {
+        const message = `Kwota wygląda dobrze.`;
+        warningBox.textContent = message;
+        warningBox.style.color = "green";
+        warningBox.classList.add("success");
+        warningBox.classList.remove("warning");
+        delete state.validationMessages[subId];
+    }
+}
+
+// ---- Check if subcategory is check as Stała cena
+function checkPricesHandler() {
+    Object.entries(state.subcategoryValues).forEach(([catId, subs]) => {
+        Object.entries(subs).forEach(([subId, value]) => {
+            const isFixed = state.fixedSubcategory?.[catId]?.[subId];
+            if (!isFixed) {
+                validateSubcategory(subId, value);
+            }
+        });
+    });
+}
+
+
+// ----
+function validateAllSubcategories() {
+    for (const [catId, subs] of Object.entries(subcategoryShares)) {
+        for (const subId of Object.keys(subs)) {
+            const val = state.subcategoryValues[catId]?.[subId] || 0;
+            validateSubcategory(subId, val);
+        }
+    }
+}
 
 // ---- ADD OWN IDEAS ----
-// function setupAddIdeaHandler() {
-//     const addBtn = document.getElementById('addIdeaBtn');
-//     if (!addBtn) return;
-
-//     addBtn.addEventListener('click', () => {
-//         const name = state.nameInput.value.trim();
-//         const price = parseFloat(state.priceInput.value);
-
-//         const messageBox = document.getElementById('pomyslyMessage');
-//         messageBox.textContent = '';
-
-//         if (!name || isNaN(price) || price <= 0) {
-//             messageBox.textContent = 'Wprowadź poprawną nazwę i kwotę.';
-//             return;
-//         }
-
-//         if (price > state.remainingBudget) {
-//             messageBox.textContent = 'Brak wystarczających środków na ten pomysł.';
-//             return;
-//         }
-
-//         const ideaDiv = document.createElement('div');
-//         ideaDiv.className = 'idea-item';
-//         ideaDiv.textContent = `${name} - ${price.toLocaleString()} zł`;
-//         state.pomyslyBox.appendChild(ideaDiv);
-
-//         state.remainingBudget -= price;
-
-//         updateRemainingBudget();
-
-//         state.nameInput.value = '';
-//         state.priceInput.value = '';
-//     });
-// }
-
 function setupAddIdeaHandler() {
     const addBtn = document.getElementById('addIdeaBtn');
     if (!addBtn) return;
@@ -522,14 +707,9 @@ function setupAddIdeaHandler() {
             return;
         }
 
-        if (price > state.remainingBudget) {
-            messageBox.textContent = 'Brak wystarczających środków na ten pomysł.';
-            return;
-        }
-
         // Tworzenie elementu pomysłu
         const ideaDiv = document.createElement('div');
-        ideaDiv.classList.add('idea-item', 'slider-row');
+        ideaDiv.classList.add('idea-item');
 
         // Element z nazwą i ceną
         const ideaText = document.createElement('span');
@@ -542,8 +722,11 @@ function setupAddIdeaHandler() {
         editBtn.className = 'edit-idea-btn';
         editBtn.type = 'button';
         editBtn.addEventListener('click', () => {
-            const newName = prompt('Nowa nazwa pomysłu:', name);
-            const newPriceStr = prompt('Nowa kwota:', price);
+            const oldName = name; // or store in closure / data attribute
+            const oldPrice = price;
+
+            const newName = prompt('Nowa nazwa pomysłu:', oldName);
+            const newPriceStr = prompt('Nowa kwota:', oldPrice);
             const newPrice = parseFloat(newPriceStr);
 
             if (!newName || isNaN(newPrice) || newPrice <= 0) {
@@ -551,15 +734,9 @@ function setupAddIdeaHandler() {
                 return;
             }
 
-            const priceDiff = newPrice - price;
-            if (priceDiff > state.remainingBudget) {
-                alert('Brak środków na taką zmianę.');
-                return;
-            }
-
-            // Aktualizacja
             ideaText.textContent = `${newName} - ${newPrice.toLocaleString()} zł`;
-            state.remainingBudget -= priceDiff;
+            updateCategoryCost();
+            // Możesz zaktualizować state.remainingBudget jeśli to potrzebne
             updateRemainingBudget();
         });
 
@@ -573,6 +750,7 @@ function setupAddIdeaHandler() {
             if (!confirmDelete) return;
 
             ideaDiv.remove();
+            updateCategoryCost();
             state.remainingBudget += price;
             updateRemainingBudget();
         });
@@ -585,7 +763,7 @@ function setupAddIdeaHandler() {
         }
         // Dodaj pomysł do listy
         state.pomyslyBox.appendChild(ideaDiv);
-
+        updateCategoryCost();
         // Aktualizacja budżetu
         state.remainingBudget -= price;
         updateRemainingBudget();
@@ -596,42 +774,30 @@ function setupAddIdeaHandler() {
     });
 }
 
-
-
-document.getElementById("validateGuestCountBtn").addEventListener("click", () => {
-    validateAllSubcategories();
-});
-
-
-function validateSubcategory(subId, value) {
-    const warningBox = document.getElementById(`warning-${subId}`);
-    const minValue = (minPerPerson[subId] || 0) * state.guestCount;
-
-    if (value < minValue) {
-        const message = `Kwota może być zbyt niska (minimum: ${minValue.toLocaleString()} zł dla ${state.guestCount} osób).`;
-        if (warningBox) {
-            warningBox.textContent = message;
-            warningBox.style.color = "red";
-        }
-        state.validationMessages[subId] = message;
-    } else {
-        if (warningBox) {
-            warningBox.textContent = "";
-        }
-        delete state.validationMessages[subId];
-    }
-}
-
-
 // ----
-function validateAllSubcategories() {
-    for (const [catId, subs] of Object.entries(subcategoryShares)) {
-        for (const subId of Object.keys(subs)) {
-            const val = state.subcategoryValues[catId]?.[subId] || 0;
-            validateSubcategory(subId, val);
+function updateCategoryCost() {
+    const ideaItems = document.querySelectorAll('.subcategory#pomysly .idea-item');
+    let total = 0;
+
+    ideaItems.forEach(item => {
+        // Parsuj cenę z tekstu, np. "Nazwa - 123 zł"
+        const text = item.querySelector('span').textContent;
+        const match = text.match(/- ([\d\s]+) zł/);
+        if (match) {
+            // usuń spacje z liczby i zamień na int
+            const price = parseInt(match[1].replace(/\s/g, ''), 10);
+            if (!isNaN(price)) {
+                total += price;
+            }
         }
+    });
+
+    const costDisplay = document.getElementById('pomysly-costs');
+    if (costDisplay) {
+        costDisplay.textContent = `Zaplanowane wydatki w kategorii Pomysły: ${total.toLocaleString()} zł`;
     }
 }
+
 
 // ---- API ----
 // ---- wysyłanie wyników ----
@@ -668,7 +834,6 @@ document.getElementById('saveBudgetBtn').addEventListener('click', () => {
         })
         .catch((err) => {
             showMessage(msgBox, "Błąd zapisywania danych", "error");
-            console.error('Błąd:', err)
         });
 });
 
@@ -798,3 +963,21 @@ document.querySelectorAll('.category-box h3').forEach(title => {
 });
 
 
+// --------
+function showMessage(el, text, type) {
+    el.innerHTML = '';
+    el.classList.remove('success', 'error');
+    el.classList.add(type);
+
+    if (Array.isArray(text)) {
+        const ul = document.createElement('ul');
+        text.forEach(msg => {
+            const li = document.createElement('li');
+            li.textContent = msg;
+            ul.appendChild(li);
+        });
+        el.appendChild(ul);
+    } else {
+        el.textContent = text;
+    }
+}

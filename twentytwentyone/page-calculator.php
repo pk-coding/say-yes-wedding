@@ -37,12 +37,16 @@ get_header();
         <div class="budget-box">
             <!-- <div class="budget-box-details"> -->
             <!-- <span class="say-yes">Say-Yes-Weeding</span> -->
-            <span id="remainingBudget">Do rozdysponowania: 0 zł</span>
-            <label for="guestCount">Planowana liczba gości:</label>
-            <input type="number" id="guestCount" value="100" min="1" max="10000">
-            <label for="budgetTotal">Planowany budżet? (PLN)</label>
-            <input type="number" id="budgetTotal" value="100000" min="10000" max="100000000" />
-            <button id="validateGuestCountBtn" type="button">Sprawdź minimalne kwoty</button>
+            <span id="remainingBudget">Pozostało: 0 zł</span>
+            <label for="guestCount">Liczba gości:</label>
+            <input type="number" id="guestCount" value="0" min="0" max="10000" step="1">
+            <button id="changeGuestsBtn" type="button">Ustaw</button>
+            <label for="budgetTotal">Budżet? (PLN)</label>
+            <input type="number" id="budgetTotal" value="0" min="0" max="100000000" step="100" />
+            <button id="changeBudgetBtn" type="button">Ustaw</button>
+            <button id="checkPricesBtn" type="button">Sprawdź ceny</button>
+            <span id="tooltip"></span>
+            <!-- <button id="validateGuestCountBtn" type="button">Sprawdź minimalne kwoty</button> -->
 
             <!-- </div>
 
@@ -61,8 +65,8 @@ get_header();
                 <div class="slider-row category-budget">
 
                     <label for="lokal-catering-slider">Budżet dla kategorii: Lokal i catering</label>
-                    <input type="range" class="category-slider" id="lokal-catering-slider" min="0" value="0" />
-                    <input type="number" id="lokal-catering-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="lokal-catering-slider" min="0" value="0" step="100" />
+                    <input type="number" id="lokal-catering-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="lokal-catering">
@@ -70,12 +74,14 @@ get_header();
                     <div class="slider-row">
                         <label for="lokal">Lokal:</label>
                         <div id="lokal-data">
-                            <input type="range" id="lokal" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="lokal_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="lokal" />
-                            </label>
+                            <input type="range" id="lokal" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="lokal_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="lokal" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-lokal"></div>
                         </div>
                     </div>
@@ -83,12 +89,14 @@ get_header();
                     <div class="slider-row">
                         <label for="catering">Catering:</label>
                         <div id="catering-data">
-                            <input type="range" id="catering" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="catering_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="catering" />
-                            </label>
+                            <input type="range" id="catering" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="catering_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="catering" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-catering"></div>
                         </div>
                     </div>
@@ -96,12 +104,14 @@ get_header();
                     <div class="slider-row">
                         <label for="alkohol">Alkohol:</label>
                         <div id="alkohol-data">
-                            <input type="range" id="alkohol" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="alkohol_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="alkohol" />
-                            </label>
+                            <input type="range" id="alkohol" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="alkohol_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="alkohol" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-alkohol"></div>
                         </div>
                     </div>
@@ -109,12 +119,14 @@ get_header();
                     <div class="slider-row">
                         <label for="tort">Tort:</label>
                         <div id="tort-data">
-                            <input type="range" id="tort" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="tort_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="tort" />
-                            </label>
+                            <input type="range" id="tort" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="tort_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="tort" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-tort"></div>
                         </div>
                     </div>
@@ -122,12 +134,14 @@ get_header();
                     <div class="slider-row">
                         <label for="poprawiny">Poprawiny:</label>
                         <div id="poprawiny-data">
-                            <input type="range" id="poprawiny" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="poprawiny_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="poprawiny" />
-                            </label>
+                            <input type="range" id="poprawiny" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="poprawiny_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="lokal-catering" data-sub-id="poprawiny" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-poprawiny"></div>
                         </div>
                     </div>
@@ -140,9 +154,9 @@ get_header();
                 <h3>Foto / wideo</h3>
 
                 <div class="slider-row category-budget">
-                    <label for="foto-video-slider">Budżet dla kategorii: FOTO i VIDEO</label>
-                    <input type="range" class="category-slider" id="foto-video-slider" min="0" value="0" />
-                    <input type="number" id="foto-video-slider_value" value="0" />
+                    <label for="foto-video-slider">Budżet dla kategorii: Foto i Video</label>
+                    <input type="range" class="category-slider" id="foto-video-slider" min="0" value="0" step="100" />
+                    <input type="number" id="foto-video-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="foto-video">
@@ -150,12 +164,14 @@ get_header();
                     <div class="slider-row">
                         <label for="fotograf">Fotograf:</label>
                         <div id="fotograf-data">
-                            <input type="range" id="fotograf" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="fotograf_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="foto-video" data-sub-id="fotograf" />
-                            </label>
+                            <input type="range" id="fotograf" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="fotograf_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="foto-video" data-sub-id="fotograf" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-fotograf"></div>
                         </div>
                     </div>
@@ -163,12 +179,14 @@ get_header();
                     <div class="slider-row">
                         <label for="filmowiec">Filmowiec:</label>
                         <div id="filmowiec-data">
-                            <input type="range" id="filmowiec" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="filmowiec_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="foto-video" data-sub-id="filmowiec" />
-                            </label>
+                            <input type="range" id="filmowiec" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="filmowiec_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="foto-video" data-sub-id="filmowiec" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-filmowiec"></div>
                         </div>
                     </div>
@@ -176,12 +194,14 @@ get_header();
                     <div class="slider-row">
                         <label for="fotobudka">Fotobudka:</label>
                         <div id="fotobudka-data">
-                            <input type="range" id="fotobudka" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="fotobudka_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="foto-video" data-sub-id="fotobudka" />
-                            </label>
+                            <input type="range" id="fotobudka" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="fotobudka_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="foto-video" data-sub-id="fotobudka" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-fotobudka"></div>
                         </div>
                     </div>
@@ -195,8 +215,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="dekoracje-kwiaty-slider">Budżet dla kategorii: Dekoracje i kwiaty</label>
-                    <input type="range" class="category-slider" id="dekoracje-kwiaty-slider" min="0" value="0" />
-                    <input type="number" id="dekoracje-kwiaty-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="dekoracje-kwiaty-slider" min="0" value="0" step="100" />
+                    <input type="number" id="dekoracje-kwiaty-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="dekoracje">
@@ -204,12 +224,14 @@ get_header();
                     <div class="slider-row">
                         <label for="dekoracje-sali">Dekoracje sali:</label>
                         <div id="dekoracje-sali-data">
-                            <input type="range" id="dekoracje-sali" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="dekoracje-sali_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="dekoracje-sali" />
-                            </label>
+                            <input type="range" id="dekoracje-sali" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="dekoracje-sali_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="dekoracje-sali" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-dekoracje-sali"></div>
                         </div>
                     </div>
@@ -217,12 +239,14 @@ get_header();
                     <div class="slider-row">
                         <label for="dekoracje-kosciola">Dekoracje kościoła:</label>
                         <div id="dekoracja-kosciola-data">
-                            <input type="range" id="dekoracje-kosciola" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="dekoracje-kosciola_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="dekoracje-kosciola" />
-                            </label>
+                            <input type="range" id="dekoracje-kosciola" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="dekoracje-kosciola_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="dekoracje-kosciola" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-dekoracje-kosiola"></div>
                         </div>
                     </div>
@@ -230,12 +254,14 @@ get_header();
                     <div class="slider-row">
                         <label for="bukiet">Bukiet:</label>
                         <div id="bukiet-data">
-                            <input type="range" id="bukiet" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="bukiet_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="bukiet" />
-                            </label>
+                            <input type="range" id="bukiet" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="bukiet_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="bukiet" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-bukiet"></div>
                         </div>
                     </div>
@@ -243,12 +269,14 @@ get_header();
                     <div class="slider-row">
                         <label for="scianka">Ścianka:</label>
                         <div id="scianka-data">
-                            <input type="range" id="scianka" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="scianka_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="scianka" />
-                            </label>
+                            <input type="range" id="scianka" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="scianka_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="dekoracje-kwiaty" data-sub-id="scianka" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-scianka"></div>
                         </div>
                     </div>
@@ -262,8 +290,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="muzyka-slider">Budżet dla kategorii: Muzyka</label>
-                    <input type="range" class="category-slider" id="muzyka-slider" min="0" value="0" />
-                    <input type="number" id="muzyka-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="muzyka-slider" min="0" value="0" step="100" />
+                    <input type="number" id="muzyka-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="muzyka">
@@ -271,12 +299,14 @@ get_header();
                     <div class="slider-row">
                         <label for="zespol">Zespół / DJ:</label>
                         <div id="zespol-data">
-                            <input type="range" id="zespol" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="zespol_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="muzyka" data-sub-id="zespol" />
-                            </label>
+                            <input type="range" id="zespol" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="zespol_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="muzyka" data-sub-id="zespol" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-zespol"></div>
                         </div>
                     </div>
@@ -284,12 +314,14 @@ get_header();
                     <div class="slider-row">
                         <label for="naglosnienie">Nagłośnienie:</label>
                         <div id="naglosnienie-data">
-                            <input type="range" id="naglosnienie" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="naglosnienie_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="muzyka" data-sub-id="naglosnienie" />
-                            </label>
+                            <input type="range" id="naglosnienie" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="naglosnienie_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="muzyka" data-sub-id="naglosnienie" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-naglosnienie"></div>
                         </div>
                     </div>
@@ -297,12 +329,14 @@ get_header();
                     <div class="slider-row">
                         <label for="muzyka-kosciol">Muzyka w kościele:</label>
                         <div id="muzyka-kosciol-data">
-                            <input type="range" id="muzyka-kosciol" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="muzyka-kosciol_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="muzyka" data-sub-id="muzyka-kosciol" />
-                            </label>
+                            <input type="range" id="muzyka-kosciol" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="muzyka-kosciol_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="muzyka" data-sub-id="muzyka-kosciol" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-muzyka-kosciol"></div>
                         </div>
                     </div>
@@ -316,8 +350,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="ubior-slider">Budżet dla kategorii: Ubiór</label>
-                    <input type="range" class="category-slider" id="ubior-slider" min="0" value="0" />
-                    <input type="number" id="ubior-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="ubior-slider" min="0" value="0" step="100" />
+                    <input type="number" id="ubior-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="ubior">
@@ -325,12 +359,14 @@ get_header();
                     <div class="slider-row">
                         <label for="suknia">Suknia:</label>
                         <div id="suknia-data">
-                            <input type="range" id="suknia" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="suknia_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="suknia" />
-                            </label>
+                            <input type="range" id="suknia" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="suknia_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="suknia" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-suknia"></div>
                         </div>
                     </div>
@@ -338,12 +374,14 @@ get_header();
                     <div class="slider-row">
                         <label for="garnitur">Garnitur:</label>
                         <div id="garnitur-data">
-                            <input type="range" id="garnitur" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="garnitur_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="garnitur" />
-                            </label>
+                            <input type="range" id="garnitur" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="garnitur_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="garnitur" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-garnitur"></div>
                         </div>
                     </div>
@@ -351,12 +389,14 @@ get_header();
                     <div class="slider-row">
                         <label for="dodatki">Dodatki:</label>
                         <div id="dodatki-data">
-                            <input type="range" id="dodatki" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="dodatki_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="dodatki" />
-                            </label>
+                            <input type="range" id="dodatki" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="dodatki_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="dodatki" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-dodatki"></div>
                         </div>
                     </div>
@@ -364,12 +404,14 @@ get_header();
                     <div class="slider-row">
                         <label for="fryzura">Fryzura:</label>
                         <div id="fryzura-data">
-                            <input type="range" id="fryzura" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="fryzura_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="fryzura" />
-                            </label>
+                            <input type="range" id="fryzura" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="fryzura_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="fryzura" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-fryzura"></div>
                         </div>
                     </div>
@@ -377,12 +419,14 @@ get_header();
                     <div class="slider-row">
                         <label for="makijaz">Makijaż:</label>
                         <div id="makijaz-data">
-                            <input type="range" id="makijaz" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="makijaz_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="makijaz" />
-                            </label>
+                            <input type="range" id="makijaz" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="makijaz_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="ubior" data-sub-id="makijaz" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-majijaz"></div>
                         </div>
                     </div>
@@ -396,8 +440,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="papeteria-slider">Budżet dla kategorii: Papeteria</label>
-                    <input type="range" class="category-slider" id="papeteria-slider" min="0" value="0" />
-                    <input type="number" id="papeteria-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="papeteria-slider" min="0" value="0" step="100" />
+                    <input type="number" id="papeteria-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="papeteria">
@@ -405,12 +449,14 @@ get_header();
                     <div class="slider-row">
                         <label for="zaproszenia">Zaproszenia:</label>
                         <div id="zaproszenia-data">
-                            <input type="range" id="zaproszenia" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="zaproszenia_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="zaproszenia" />
-                            </label>
+                            <input type="range" id="zaproszenia" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="zaproszenia_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="zaproszenia" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-zaproszenia"></div>
                         </div>
                     </div>
@@ -418,12 +464,14 @@ get_header();
                     <div class="slider-row">
                         <label for="winietki">Winietki:</label>
                         <div id="winietki-data">
-                            <input type="range" id="winietki" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="winietki_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="winietki" />
-                            </label>
+                            <input type="range" id="winietki" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="winietki_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="winietki" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-winietki"></div>
                         </div>
                     </div>
@@ -431,12 +479,14 @@ get_header();
                     <div class="slider-row">
                         <label for="menu">Menu:</label>
                         <div id="menu-data">
-                            <input type="range" id="menu" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="menu_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="menu" />
-                            </label>
+                            <input type="range" id="menu" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="menu_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="menu" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-menu"></div>
                         </div>
                     </div>
@@ -444,12 +494,14 @@ get_header();
                     <div class="slider-row">
                         <label for="plan-stolow">Plan stołów:</label>
                         <div id="plan-stolow-data">
-                            <input type="range" id="plan-stolow" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="plan-stolow_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="plan-stolow" />
-                            </label>
+                            <input type="range" id="plan-stolow" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="plan-stolow_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="papeteria" data-sub-id="plan-stolow" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-plan-stolow"></div>
                         </div>
                     </div>
@@ -463,8 +515,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="atrakcje-slider">Budżet dla kategorii: Atrakcje</label>
-                    <input type="range" class="category-slider" id="atrakcje-slider" min="0" value="0" />
-                    <input type="number" id="atrakcje-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="atrakcje-slider" min="0" value="0" step="100" />
+                    <input type="number" id="atrakcje-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="atrakcje">
@@ -472,12 +524,14 @@ get_header();
                     <div class="slider-row">
                         <label for="pokaz-ognia">Pokaz ognia:</label>
                         <div id="pokaz-ognia--data">
-                            <input type="range" id="pokaz-ognia" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="pokaz-ognia_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="pokaz-ognia" />
-                            </label>
+                            <input type="range" id="pokaz-ognia" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="pokaz-ognia_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="pokaz-ognia" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-pokaz-ognia"></div>
                         </div>
                     </div>
@@ -485,12 +539,14 @@ get_header();
                     <div class="slider-row">
                         <label for="animatorzy">Animatorzy:</label>
                         <div id="animatorzy-data">
-                            <input type="range" id="animatorzy" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="animatorzy_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="animatorzy" />
-                            </label>
+                            <input type="range" id="animatorzy" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="animatorzy_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="animatorzy" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-animatorzy"></div>
                         </div>
                     </div>
@@ -498,12 +554,14 @@ get_header();
                     <div class="slider-row">
                         <label for="chill">Strefy chill:</label>
                         <div id="chill-data">
-                            <input type="range" id="chill" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="chill_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="chill" />
-                            </label>
+                            <input type="range" id="chill" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="chill_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="chill" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-chill"></div>
                         </div>
                     </div>
@@ -511,12 +569,14 @@ get_header();
                     <div class="slider-row">
                         <label for="ksiega">Księga gości:</label>
                         <div id="ksiega-data">
-                            <input type="range" id="ksiega" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="ksiega_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="ksiega" />
-                            </label>
+                            <input type="range" id="ksiega" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="ksiega_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="atrakcje" data-sub-id="ksiega" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-ksiega"></div>
                         </div>
                     </div>
@@ -530,8 +590,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="transport-slider">Budżet dla kategorii: Transport</label>
-                    <input type="range" class="category-slider" id="transport-slider" min="0" value="0" />
-                    <input type="number" id="transport-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="transport-slider" min="0" value="0" step="100" />
+                    <input type="number" id="transport-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="transport">
@@ -539,12 +599,14 @@ get_header();
                     <div class="slider-row">
                         <label for="para-mloda">Para młoda:</label>
                         <div id="para-mloda--data">
-                            <input type="range" id="para-mloda" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="para-mloda_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="transport" data-sub-id="para-mloda" />
-                            </label>
+                            <input type="range" id="para-mloda" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="para-mloda_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="transport" data-sub-id="para-mloda" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-para-mloda"></div>
                         </div>
                     </div>
@@ -552,12 +614,14 @@ get_header();
                     <div class="slider-row">
                         <label for="goscie">Goście:</label>
                         <div id="goscie-data">
-                            <input type="range" id="goscie" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="goscie_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="transport" data-sub-id="goscie" />
-                            </label>
+                            <input type="range" id="goscie" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="goscie_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="transport" data-sub-id="goscie" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-goscie"></div>
                         </div>
                     </div>
@@ -565,12 +629,14 @@ get_header();
                     <div class="slider-row">
                         <label for="autokary">Autokary:</label>
                         <div id="autokary-data">
-                            <input type="range" id="autokary" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="autokary_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="transport" data-sub-id="autokary" />
-                            </label>
+                            <input type="range" id="autokary" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="autokary_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="transport" data-sub-id="autokary" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-autokary"></div>
                         </div>
                     </div>
@@ -584,8 +650,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="noclegi-slider">Budżet dla kategorii: Noclegi</label>
-                    <input type="range" class="category-slider" id="noclegi-slider" min="0" value="0" />
-                    <input type="number" id="noclegi-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="noclegi-slider" min="0" value="0" step="100" />
+                    <input type="number" id="noclegi-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="noclegi">
@@ -596,12 +662,14 @@ get_header();
                             <span class="label-line">dla gości</span>
                         </label>
                         <div id="noclegi-goscie-data">
-                            <input type="range" id="noclegi-goscie" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="noclegi-goscie_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="noclegi" data-sub-id="noclegi-goscie" />
-                            </label>
+                            <input type="range" id="noclegi-goscie" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="noclegi-goscie_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="noclegi" data-sub-id="noclegi-goscie" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-noclegi-goscie"></div>
                         </div>
                     </div>
@@ -613,12 +681,14 @@ get_header();
                             <span class="label-line">młodej:</span>
                         </label>
                         <div id="apartament-data">
-                            <input type="range" id="apartament" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="apartament_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="noclegi" data-sub-id="apartament" />
-                            </label>
+                            <input type="range" id="apartament" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="apartament_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="noclegi" data-sub-id="apartament" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-apartament"></div>
                         </div>
                     </div>
@@ -632,8 +702,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="wedding-planner-slider">Budżet dla kategorii: Wedding Planner</label>
-                    <input type="range" class="category-slider" id="wedding-planner-slider" min="0" value="0" />
-                    <input type="number" id="wedding-planner-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="wedding-planner-slider" min="0" value="0" step="100" />
+                    <input type="number" id="wedding-planner-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="wedding-planner">
@@ -641,12 +711,14 @@ get_header();
                     <div class="slider-row">
                         <label for="organizacja">Organizacja:</label>
                         <div id="organizacja-data">
-                            <input type="range" id="organizacja" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="organizacja_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="wedding-planner" data-sub-id="organizacja" />
-                            </label>
+                            <input type="range" id="organizacja" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="organizacja_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="wedding-planner" data-sub-id="organizacja" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-organizacja"></div>
                         </div>
                     </div>
@@ -654,12 +726,14 @@ get_header();
                     <div class="slider-row">
                         <label for="koordynacja">Koordynacja:</label>
                         <div id="koordynacja-data">
-                            <input type="range" id="koordynacja" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="koordynacja_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="wedding-planner" data-sub-id="koordynacja" />
-                            </label>
+                            <input type="range" id="koordynacja" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="koordynacja_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="wedding-planner" data-sub-id="koordynacja" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-koordynacja"></div>
                         </div>
                     </div>
@@ -673,8 +747,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="rezerwa-slider">Budżet dla kategorii: Rezerwa</label>
-                    <input type="range" class="category-slider" id="rezerwa-slider" min="0" value="0" />
-                    <input type="number" id="rezerwa-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="rezerwa-slider" min="0" value="0" step="100" />
+                    <input type="number" id="rezerwa-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="rezerwa">
@@ -685,12 +759,14 @@ get_header();
                             <span class="label-line">wydatki</span>
                         </label>
                         <div id="nieprzewidziane-data">
-                            <input type="range" id="nieprzewidziane" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="nieprzewidziane_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="rezerwa" data-sub-id="nieprzewidziane" />
-                            </label>
+                            <input type="range" id="nieprzewidziane" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="nieprzewidziane_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="rezerwa" data-sub-id="nieprzewidziane" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-nieprzewidziane"></div>
                         </div>
                     </div>
@@ -704,8 +780,8 @@ get_header();
 
                 <div class="slider-row category-budget">
                     <label for="inne-slider">Budżet dla kategorii: Inne</label>
-                    <input type="range" class="category-slider" id="inne-slider" min="0" value="0" />
-                    <input type="number" id="inne-slider_value" value="0" />
+                    <input type="range" class="category-slider" id="inne-slider" min="0" value="0" step="100" />
+                    <input type="number" id="inne-slider_value" value="0" step="100" />
                 </div>
 
                 <div class="subcategory" id="inne">
@@ -716,12 +792,14 @@ get_header();
                             <span class="label-line">dla rodziców:</span>
                         </label>
                         <div id="prezenty-data">
-                            <input type="range" id="prezenty" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="prezenty_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="inne" data-sub-id="prezenty" />
-                            </label>
+                            <input type="range" id="prezenty" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="prezenty_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="inne" data-sub-id="prezenty" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-prezenty"></div>
                         </div>
                     </div>
@@ -729,12 +807,14 @@ get_header();
                     <div class="slider-row">
                         <label for="napiwki">Napiwki:</label>
                         <div id="napiwki-data">
-                            <input type="range" id="napiwki" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="napiwki_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="inne" data-sub-id="napiwki" />
-                            </label>
+                            <input type="range" id="napiwki" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="napiwki_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="inne" data-sub-id="napiwki" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-napiwki"></div>
                         </div>
                     </div>
@@ -745,12 +825,14 @@ get_header();
                             <span class="label-line">USC/kościół</span>
                         </label>
                         <div id="oplata-usc-data">
-                            <input type="range" id="oplata-usc" min="0" value="0" class="subcategory-slider" />
-                            <input type="number" id="oplata-usc_value" value="0" />
-                            <label>
-                                Stała cena
-                                <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="inne" data-sub-id="oplata-usc" />
-                            </label>
+                            <input type="range" id="oplata-usc" min="0" value="0" class="subcategory-slider" step="100" />
+                            <input type="number" id="oplata-usc_value" value="0" step="100" />
+                            <div class="fixed-price-wrapper">
+                                <label>
+                                    Stała cena
+                                    <input type="checkbox" class="fixed-subcategory-checkbox" data-cat-id="inne" data-sub-id="oplata-usc" />
+                                </label>
+                            </div>
                             <div class="warning" id="warning-oplata-usc"></div>
                         </div>
                     </div>
@@ -763,16 +845,20 @@ get_header();
                 <h3>Pomysły</h3>
 
                 <div class="slider-row category-budget">
-                    <p id="pomyslyBudget">Dostępny budżet na pomysły: 0 zł</p>
+                    <!-- <p id="pomyslyBudget">Dostępny budżet na pomysły: 0 zł</p> -->
+                    <p id="pomysly-costs">Zaplanowane wydatki w kategorii Pomysły: 0 zł</p>
                     <div id="pomyslyMessage" style="color: red; font-weight: bold;"></div>
                 </div>
 
                 <div class="subcategory" id="pomysly">
-                    <textarea id="ideaName" rows="1" cols="400" placeholder="Wpisz pomysł"></textarea>
-                    <input type="number" id="ideaPrice" placeholder="Podaj cenę" min="0" max="100000000" />
-                    <button id="addIdeaBtn" type="button">Dodaj</button>
+                    <div class="idea-form">
+                        <textarea id="ideaName" rows="1" cols="400" placeholder="Wpisz pomysł"></textarea>
+                        <input type="number" id="ideaPrice" placeholder="Podaj cenę" min="0" max="100000000" step="100" F />
+                        <button id="addIdeaBtn" type="button">Dodaj</button>
+                    </div>
+                    <!-- tutaj dynamicznie dodamy pomysły -->
                 </div>
-                <!-- tutaj dynamicznie dodamy pomysły -->
+
             </div>
 
             <button id="saveBudgetBtn" type="button">Zapisz budżet</button>

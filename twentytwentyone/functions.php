@@ -676,20 +676,15 @@ endif;
 // --------------------------------------------------------------------------------
 
 // ---- FONT FAMILLY FOR ALL PAGES ----
-function load_custom_google_fonts()
-{
-	wp_enqueue_style(
-		'google-font-parisienne',
-		'https://fonts.googleapis.com/css2?family=Parisienne&display=swap',
-		false
-	);
-		wp_enqueue_style(
-		'google-font-cormorantgaramond',
-		'https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap',
-		false
-	);
+function enqueue_my_fonts() {
+    wp_enqueue_style(
+        'google-font-nunito',
+        'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap',
+        array(),
+        null
+    );
 }
-add_action('wp_enqueue_scripts', 'load_custom_google_fonts');
+add_action('wp_enqueue_scripts', 'enqueue_my_fonts');
 
 
 // ---- SECURITY ----
