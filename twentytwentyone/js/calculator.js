@@ -39,6 +39,8 @@ function getInitialState() {
         pomyslyBox: document.getElementById('pomysly'),
         pomyslySliderValue: document.getElementById('pomysly-slider_value'),
         ideaPriceInput: document.getElementById('ideaPrice'),
+        isPriceCheckVisible: false,
+        tooltip: document.getElementById('tooltip'),
     };
 }
 
@@ -158,7 +160,6 @@ function initBudgetTool() {
 }
 
 // ---- budgetBox SERVICES
-const tooltip = document.getElementById('tooltip');
 
 // 1. Zmiana liczby gości
 document.getElementById('changeGuestsBtn').addEventListener('click', () => {
@@ -167,9 +168,9 @@ document.getElementById('changeGuestsBtn').addEventListener('click', () => {
     if (isNaN(val) || val < 0) return;
 
     state.guestCount = val;
-    tooltip.textContent = 'Zmieniono liczbę gości';
-    tooltip.style.color = 'green'; tooltip.style.display = 'inline';
-    setTimeout(() => tooltip.style.display = 'none', 2000);
+    state.tooltip.textContent = 'Zmieniono liczbę gości';
+    state.tooltip.style.color = 'green'; state.tooltip.style.display = 'inline';
+    setTimeout(() => state.tooltip.style.display = 'none', 2000);
 });
 
 // 2. Zmiana budżetu
@@ -190,17 +191,25 @@ document.getElementById('changeBudgetBtn').addEventListener('click', () => {
         updateRemainingBudget();
     }
 
-    tooltip.textContent = 'Zmieniono budżet';
-    tooltip.style.color = 'green'; tooltip.style.display = 'inline';
-    setTimeout(() => tooltip.style.display = 'none', 2000);
+    state.tooltip.textContent = 'Zmieniono budżet';
+    state.tooltip.style.color = 'green'; state.tooltip.style.display = 'inline';
+    setTimeout(() => state.tooltip.style.display = 'none', 2000);
 });
 
 // 3. Sprawdź ceny
 document.getElementById('checkPricesBtn').addEventListener('click', () => {
     checkPricesHandler();
-    tooltip.textContent = 'Sprawdzone ceny';
-    tooltip.style.color = 'green'; tooltip.style.display = 'inline';
-    setTimeout(() => tooltip.style.display = 'none', 2000);
+    const tooltipText = document.getElementById('checkPricesBtn').textContent;
+    if (tooltipText === "Sprawdź sugestie cen") {
+        state.tooltip.textContent = "Sprawdzono sugestie cenowe dla wszystkich podkategorii";
+    } else if (tooltipText === "Usuń obecne sugestie dla wszystkich podkategorii") {
+        tooltip.textContent = "Usunięto obecne sugestie cenowe dla wszystkich podkategorii";
+    } else if (tooltipText === "Sprawdź nowe sugestie") {
+        state.tooltip.textContent = "Sprawdzono nowe sugestie cenowe dla wszystkich podkategorii";
+    }
+
+    state.tooltip.style.color = 'green'; state.tooltip.style.display = 'inline';
+    setTimeout(() => state.tooltip.style.display = 'none', 2000);
 });
 
 // --------
@@ -652,16 +661,16 @@ function validateSubcategory(subId, value) {
     if (!warningBox) return;
 
     if (value < minValue) {
-        const message = `Kwota może być zbyt niska (minimum: ${minValue.toLocaleString("pl-PL")} zł dla ${state.guestCount} osób).`;
+        const message = `Kwota może być zbyt niska (minimum: ${minValue.toLocaleString("pl-PL")} zł dla ${state.guestCount} osób.`;
         warningBox.textContent = message;
-        warningBox.style.color = "red";
+        // warningBox.style.color = "red";
         warningBox.classList.add("warning");
         warningBox.classList.remove("success");
         state.validationMessages[subId] = message;
     } else {
-        const message = `Kwota wygląda dobrze.`;
+        const message = `Kwota mieści si w średniej cenowej dla ${state.guestCount} osób).`;
         warningBox.textContent = message;
-        warningBox.style.color = "green";
+        // warningBox.style.color = "green";
         warningBox.classList.add("success");
         warningBox.classList.remove("warning");
         delete state.validationMessages[subId];
@@ -673,7 +682,17 @@ function checkPricesHandler() {
     Object.entries(state.subcategoryValues).forEach(([catId, subs]) => {
         Object.entries(subs).forEach(([subId, value]) => {
             const isFixed = state.fixedSubcategory?.[catId]?.[subId];
-            if (!isFixed) {
+            const warningBox = document.getElementById(`warning-${subId}`);
+            if (!warningBox) return;
+
+            if (isFixed) {
+                const message = `Kwota jest zablokowana – nie podlega walidacji.`;
+                warningBox.textContent = message;
+                // warningBox.style.color = "gray";
+                warningBox.classList.remove("warning", "success");
+                warningBox.classList.add("info");
+                state.validationMessages[subId] = message;
+            } else {
                 validateSubcategory(subId, value);
             }
         });
@@ -690,6 +709,44 @@ function validateAllSubcategories() {
         }
     }
 }
+
+// ---- Display / hidden checked prices
+document.getElementById("checkPricesBtn").addEventListener("click", () => {
+    state.isPriceCheckVisible = !state.isPriceCheckVisible;
+
+    const btn = document.getElementById("checkPricesBtn");
+    btn.textContent = state.isPriceCheckVisible ? "Usuń obecne sugestie" : "Sprawdź nowe sugestie";
+
+    togglePriceValidationMessages(state.isPriceCheckVisible);
+});
+
+
+function togglePriceValidationMessages(show) {
+    Object.entries(state.subcategoryValues).forEach(([catId, subs]) => {
+        Object.entries(subs).forEach(([subId, value]) => {
+            const warningBox = document.getElementById(`warning-${subId}`);
+            if (!warningBox) return;
+
+            if (show) {
+                const isFixed = state.fixedSubcategory?.[catId]?.[subId];
+                if (isFixed) {
+                    const message = `Kwota jest zablokowana - nie podlega walidacji.`;
+                    warningBox.textContent = message;
+                    warningBox.style.color = "gray";
+                    warningBox.classList.remove("warning", "success");
+                    warningBox.classList.add("info");
+                    state.validationMessages[subId] = message;
+                } else {
+                    validateSubcategory(subId, value);
+                }
+                warningBox.style.display = "block";
+            } else {
+                warningBox.style.display = "none";
+            }
+        });
+    });
+}
+
 
 // ---- ADD OWN IDEAS ----
 function setupAddIdeaHandler() {

@@ -226,6 +226,36 @@ body {
     background-color: var(--color-main);
 }
 
+/* tooltipy dla sprawdzanai cen */
+/* Ukrycie domyślnie */
+.tooltip-hidden {
+    display: none;
+}
+
+/* Widoczność */
+.tooltip-visible {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 0.9em;
+}
+
+/* Sukces: np. ceny sprawdzone */
+.tooltip-success {
+    color: green;
+}
+
+/* Błąd: np. walidacja nieudana */
+.tooltip-error {
+    color: red;
+}
+
+/* Informacja: np. „cena zablokowana” */
+.tooltip-info {
+    color: gray;
+    font-style: italic;
+}
+
+
 #remainingBudget {
     /* flex-basis: 100%;
     width: 100%; */
@@ -512,9 +542,23 @@ input[type="number"] {
     vertical-align: middle;
 }
 
-/* Warning text */
+/* Warning text for checking suggested prices*/
+.success {
+    color: green;
+    font-size: 0.8rem;
+    margin-left: auto;
+    min-width: 100px;
+}
+
+.info {
+    color: #808080;
+    font-size: 0.8rem;
+    margin-left: auto;
+    min-width: 100px;
+}
+
 .warning {
-    color: var(--color-warning);
+    color: red;
     font-size: 0.8rem;
     margin-left: auto;
     min-width: 100px;

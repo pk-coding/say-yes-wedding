@@ -39,12 +39,12 @@ get_header();
             <!-- <span class="say-yes">Say-Yes-Weeding</span> -->
             <span id="remainingBudget">Pozostało: 0 zł</span>
             <label for="guestCount">Liczba gości:</label>
-            <input type="number" id="guestCount" value="0" min="0" max="10000" step="1">
+            <input type="number" id="guestCount" placeholder="Goście" min="0" max="10000" step="1">
             <button id="changeGuestsBtn" type="button">Ustaw</button>
             <label for="budgetTotal">Budżet? (PLN)</label>
-            <input type="number" id="budgetTotal" value="0" min="0" max="100000000" step="100" />
+            <input type="number" id="budgetTotal" placeholder="Budżet" min="0" max="100000000" step="100" />
             <button id="changeBudgetBtn" type="button">Ustaw</button>
-            <button id="checkPricesBtn" type="button">Sprawdź ceny</button>
+            <button id="checkPricesBtn" type="button">Sprawdź sugestie cen</button>
             <span id="tooltip"></span>
             <!-- <button id="validateGuestCountBtn" type="button">Sprawdź minimalne kwoty</button> -->
 
