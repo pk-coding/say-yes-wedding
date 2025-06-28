@@ -67,10 +67,10 @@ get_header();
                     <label for="lokal-catering-slider">Budżet dla kategorii: Lokal i catering</label>
                     <input type="range" class="category-slider" id="lokal-catering-slider" min="0" value="0" step="100" />
                     <input type="number" id="lokal-catering-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-lokal-catering" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="lokal-catering">
-                    <p id="subcategoryRemaining-lokal-catering" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="lokal">Lokal:</label>
                         <div id="lokal-data">
@@ -157,10 +157,10 @@ get_header();
                     <label for="foto-video-slider">Budżet dla kategorii: Foto i Video</label>
                     <input type="range" class="category-slider" id="foto-video-slider" min="0" value="0" step="100" />
                     <input type="number" id="foto-video-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-foto-video" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="foto-video">
-                    <p id="subcategoryRemaining-foto-video" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="fotograf">Fotograf:</label>
                         <div id="fotograf-data">
@@ -217,10 +217,10 @@ get_header();
                     <label for="dekoracje-kwiaty-slider">Budżet dla kategorii: Dekoracje i kwiaty</label>
                     <input type="range" class="category-slider" id="dekoracje-kwiaty-slider" min="0" value="0" step="100" />
                     <input type="number" id="dekoracje-kwiaty-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-dekoracje-kwiaty" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="dekoracje">
-                    <p id="subcategoryRemaining-dekoracje-kwiaty" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="dekoracje-sali">Dekoracje sali:</label>
                         <div id="dekoracje-sali-data">
@@ -292,10 +292,10 @@ get_header();
                     <label for="muzyka-slider">Budżet dla kategorii: Muzyka</label>
                     <input type="range" class="category-slider" id="muzyka-slider" min="0" value="0" step="100" />
                     <input type="number" id="muzyka-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-muzyka" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="muzyka">
-                    <p id="subcategoryRemaining-muzyka" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="zespol">Zespół / DJ:</label>
                         <div id="zespol-data">
@@ -352,10 +352,10 @@ get_header();
                     <label for="ubior-slider">Budżet dla kategorii: Ubiór</label>
                     <input type="range" class="category-slider" id="ubior-slider" min="0" value="0" step="100" />
                     <input type="number" id="ubior-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-ubior" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="ubior">
-                    <p id="subcategoryRemaining-ubior" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="suknia">Suknia:</label>
                         <div id="suknia-data">
@@ -442,10 +442,10 @@ get_header();
                     <label for="papeteria-slider">Budżet dla kategorii: Papeteria</label>
                     <input type="range" class="category-slider" id="papeteria-slider" min="0" value="0" step="100" />
                     <input type="number" id="papeteria-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-papeteria" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="papeteria">
-                    <p id="subcategoryRemaining-papeteria" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="zaproszenia">Zaproszenia:</label>
                         <div id="zaproszenia-data">
@@ -517,10 +517,10 @@ get_header();
                     <label for="atrakcje-slider">Budżet dla kategorii: Atrakcje</label>
                     <input type="range" class="category-slider" id="atrakcje-slider" min="0" value="0" step="100" />
                     <input type="number" id="atrakcje-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-atrakcje" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="atrakcje">
-                    <p id="subcategoryRemaining-atrakcje" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="pokaz-ognia">Pokaz ognia:</label>
                         <div id="pokaz-ognia--data">
@@ -592,10 +592,10 @@ get_header();
                     <label for="transport-slider">Budżet dla kategorii: Transport</label>
                     <input type="range" class="category-slider" id="transport-slider" min="0" value="0" step="100" />
                     <input type="number" id="transport-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-transport" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="transport">
-                    <p id="subcategoryRemaining-transport" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="para-mloda">Para młoda:</label>
                         <div id="para-mloda--data">
@@ -652,10 +652,10 @@ get_header();
                     <label for="noclegi-slider">Budżet dla kategorii: Noclegi</label>
                     <input type="range" class="category-slider" id="noclegi-slider" min="0" value="0" step="100" />
                     <input type="number" id="noclegi-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-noclegi" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="noclegi">
-                    <p id="subcategoryRemaining-noclegi" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="noclegi-goscie">
                             <span class="label-line">Noclegi</span>
@@ -704,10 +704,10 @@ get_header();
                     <label for="wedding-planner-slider">Budżet dla kategorii: Wedding Planner</label>
                     <input type="range" class="category-slider" id="wedding-planner-slider" min="0" value="0" step="100" />
                     <input type="number" id="wedding-planner-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-wedding-planner" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="wedding-planner">
-                    <p id="subcategoryRemaining-wedding-planner" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="organizacja">Organizacja:</label>
                         <div id="organizacja-data">
@@ -749,10 +749,10 @@ get_header();
                     <label for="rezerwa-slider">Budżet dla kategorii: Rezerwa</label>
                     <input type="range" class="category-slider" id="rezerwa-slider" min="0" value="0" step="100" />
                     <input type="number" id="rezerwa-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-rezerwa" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="rezerwa">
-                    <p id="subcategoryRemaining-rezerwa" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="nieprzewidziane">
                             <span class="label-line">Nieprzewidziane</span>
@@ -782,10 +782,10 @@ get_header();
                     <label for="inne-slider">Budżet dla kategorii: Inne</label>
                     <input type="range" class="category-slider" id="inne-slider" min="0" value="0" step="100" />
                     <input type="number" id="inne-slider_value" value="0" step="100" />
+                    <p id="subcategoryRemaining-inne" class="subcategory-remaining"></p>
                 </div>
 
                 <div class="subcategory" id="inne">
-                    <p id="subcategoryRemaining-inne" class="subcategory-remaining"></p>
                     <div class="slider-row">
                         <label for="prezenty">
                             <span class="label-line">Prezenty</span>
