@@ -41,6 +41,7 @@ function getInitialState() {
         ideaPriceInput: document.getElementById('ideaPrice'),
         isPriceCheckVisible: false,
         tooltip: document.getElementById('tooltip'),
+        isManualChange: false,
     };
 }
 
@@ -174,27 +175,123 @@ document.getElementById('changeGuestsBtn').addEventListener('click', () => {
 });
 
 // 2. Zmiana budżetu
-document.getElementById('changeBudgetBtn').addEventListener('click', () => {
+function handleChangeBudget() {
     const input = document.getElementById('budgetTotal');
     const newBudget = parseFloat(input.value) || 0;
     const diff = newBudget - state.totalBudget;
 
     if (diff === 0) return;
 
-    const confirmed = confirm('Czy zaktualizować ceny kategorii i podkategorii do wartości domyślnych?');
     state.totalBudget = newBudget;
 
-    if (confirmed) {
-        distributeInitialBudgetRespectingFixed();
-    } else {
-        state.remainingBudget += diff;
-        updateRemainingBudget();
-    }
+    // Zawsze rozkładamy sliderami automatycznie bez potwierdzenia
+    distributeInitialBudgetRespectingFixed();
 
     state.tooltip.textContent = 'Zmieniono budżet';
-    state.tooltip.style.color = 'green'; state.tooltip.style.display = 'inline';
+    state.tooltip.style.color = 'green';
+    state.tooltip.style.display = 'inline';
     setTimeout(() => state.tooltip.style.display = 'none', 2000);
-});
+}
+
+// ----- Auto Budżet
+function handleAutoBudget() {
+    const guestInput = document.getElementById('guestCount');
+    const guests = parseInt(guestInput.value, 10);
+
+    if (isNaN(guests) || guests <= 0) {
+        state.tooltip.textContent = 'Podaj poprawną liczbę gości';
+        state.tooltip.style.color = 'red';
+        state.tooltip.style.display = 'inline';
+        setTimeout(() => state.tooltip.style.display = 'none', 2000);
+        return;
+    }
+
+    let totalBudget = 0;
+    const catSums = {}; // sumy dla kategorii
+
+    for (const [subId, perPerson] of Object.entries(minPerPerson)) {
+        const subTotal = Math.round(perPerson * guests);
+
+        // znajdź kategorię, do której należy subkategoria
+        for (const [catId, subs] of Object.entries(subcategoryShares)) {
+            if (subs[subId] !== undefined) {
+                if (!catSums[catId]) catSums[catId] = 0;
+                catSums[catId] += subTotal;
+
+                // ustaw subkategorię w stanie i w UI
+                state.subcategoryValues[catId][subId] = subTotal;
+
+                const subSlider = document.getElementById(subId);
+                const subInput = document.getElementById(`${subId}_value`);
+                if (subSlider) subSlider.value = subTotal;
+                if (subInput) subInput.value = subTotal;
+
+                break;
+            }
+        }
+
+        totalBudget += subTotal;
+    }
+
+    // ustaw wartości kategorii
+    for (const [catId, catVal] of Object.entries(catSums)) {
+        state.categoryValues[catId] = catVal;
+
+        const catSlider = document.getElementById(`${catId}-slider`);
+        const catInput = document.getElementById(`${catId}-slider_value`);
+        if (catSlider) catSlider.value = catVal;
+        if (catInput) catInput.value = catVal;
+
+        updateSubcategoryRemaining(catId);
+    }
+
+    // aktualizuj budżet i interfejs
+    state.totalBudget = totalBudget;
+    state.remainingBudget = 0;
+    updateRemainingBudget();
+
+    document.getElementById('budgetTotal').value = totalBudget;
+
+    // Tooltip końcowy
+    state.tooltip.textContent = 'Wygenerowano automatyczny kosztorys z minimalnymi cenami';
+    state.tooltip.style.color = 'green';
+    state.tooltip.style.display = 'inline';
+    setTimeout(() => state.tooltip.style.display = 'none', 2500);
+    document.querySelectorAll('input[type="range"], input[type="number"]').forEach(el => {
+        el.disabled = true;
+    });
+}
+document.getElementById('autoBudgetBtn').addEventListener('click', handleAutoBudget);
+
+// Funkcja do dodawania środków do remainingBudget bez zmiany sliderów
+function handleAddFunds() {
+    const input = document.getElementById('budgetTotal');
+    const budgetBefore = parseFloat(input.value) || 0;
+    const diff = state.remainingBudget;
+
+    if (diff === 0) return;
+
+    const newBudget = state.remainingBudget < 0
+        ? budgetBefore + Math.abs(diff)
+        : budgetBefore - diff;
+
+    input.value = newBudget;
+
+    // wymuszam żeby inne funkcje zadziałały na nową wartość
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    state.remainingBudget = 0;
+
+    state.tooltip.textContent = 'Budżet został skorygowany';
+    state.tooltip.style.color = 'green';
+    state.tooltip.style.display = 'inline';
+
+    setTimeout(() => {
+        state.tooltip.style.display = 'none';
+    }, 2000);
+}
+document.getElementById('changeBudgetBtn').addEventListener('click', handleChangeBudget);
+document.getElementById('addFundsBtn').addEventListener('click', handleAddFunds);
 
 // 3. Sprawdź ceny
 document.getElementById('checkPricesBtn').addEventListener('click', () => {
@@ -228,14 +325,6 @@ document.getElementById('budgetTotal').addEventListener('keydown', (e) => {
 });
 
 // 3. Sprawdź ceny - Enter (jeśli chcesz np. Enter w dowolnym miejscu – np. focus na przycisku)
-document.getElementById('checkPricesBtn').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        document.getElementById('checkPricesBtn').click();
-    }
-});
-
-
-// --------
 function setupSliderHandlers() {
     // Kategorie
     document.querySelectorAll(".category-slider").forEach(slider => {
@@ -243,34 +332,67 @@ function setupSliderHandlers() {
         const catId = slider.id.replace("-slider", "");
         if (!slider || !input) return;
 
+        // Ustawienia step/min na sliderze i input
+        slider.step = 100;
+        slider.min = 0;
+        input.step = 100;
+        input.min = 0;
+
         const update = () => {
-            const oldVal = state.categoryValues[catId] || 0;
-            const newVal = parseInt(slider.value, 10) || 0;
+            const oldVal = state.categoryValues[catId] || 100;
+            let newVal = parseInt(slider.value, 10) || 100;
+            newVal = Math.round(newVal / 100) * 100;
+            if (newVal < 100) newVal = 100;
+
             const fixedSubsSum = getFixedSubcategoriesSum(catId);
 
             if (newVal < fixedSubsSum) {
+                // Przywróć starą wartość jeśli nowa jest za mała
                 slider.value = oldVal;
                 input.value = oldVal;
                 return;
             }
 
             state.categoryValues[catId] = newVal;
+            slider.value = newVal;
             input.value = newVal;
+
             updateRemainingBudget();
 
-            if (catId === "pomysly") {
+            if (state.isManualChange) {
+                // Ręczna zmiana - aktualizujemy tylko infoBox
                 updateSubcategoryRemaining(catId);
-                limitIdeaSliders();
             } else {
-                redistributeSubcategories(catId);
+                // Automatyczna zmiana - pełna aktualizacja podkategorii
+                updateSubcategoryRemaining(catId);
+
+                if (catId === "pomysly") {
+                    limitIdeaSliders();
+                } else {
+                    redistributeSubcategories(catId);
+                }
             }
 
             updateRemainingBudget();
         };
 
-        slider.addEventListener("input", update);
-        input.addEventListener("input", () => {
-            slider.value = input.value;
+        slider.addEventListener("input", () => {
+            state.isManualChange = true; // ręczna zmiana
+            update();
+        });
+
+        input.addEventListener("blur", () => {
+            state.isManualChange = true; // ręczna zmiana
+
+            // Walidacja wartości z inputa
+            let val = input.value.replace(/\D/g, '');
+            if (val.length === 0) val = '100';
+            let numVal = parseInt(val, 10);
+            if (isNaN(numVal) || numVal < 100) numVal = 100;
+            numVal = Math.round(numVal / 100) * 100;
+
+            slider.value = numVal;
+            input.value = numVal;
             update();
         });
     });
@@ -281,8 +403,17 @@ function setupSliderHandlers() {
         const subId = slider.id;
         if (!slider || !input) return;
 
+        slider.step = 10;
+        slider.min = 0;
+        input.step = 10;
+        input.min = 0;
+
         const update = () => {
-            const newVal = parseInt(slider.value, 10) || 0;
+            let newVal = parseInt(slider.value, 10) || 100;
+            newVal = Math.round(newVal / 100) * 100;
+            if (newVal < 100) newVal = 100;
+
+            slider.value = newVal;
             input.value = newVal;
 
             for (const [catId, subs] of Object.entries(subcategoryShares)) {
@@ -293,31 +424,56 @@ function setupSliderHandlers() {
                         return;
                     }
 
-                    const currentVal = state.subcategoryValues[catId][subId] || 0;
-
                     const totalSubSum = Object.entries(state.subcategoryValues[catId])
                         .reduce((sum, [key, val]) => key === subId ? sum : sum + val, 0);
 
                     const catMax = state.categoryValues[catId] || 0;
                     const available = catMax - totalSubSum;
 
+                    if (newVal > available) {
+                        newVal = available;
+                        slider.value = newVal;
+                        input.value = newVal;
+                    }
+
                     state.subcategoryValues[catId][subId] = newVal;
                     updateSubcategoryRemaining(catId);
-                    validateSubcategory(subId, newVal);
-
+                    if (state.isPriceCheckVisible) {
+                        validateSubcategory(subId, newVal);
+                    };
                     break;
                 }
             }
         };
 
-        slider.addEventListener("input", update);
-        input.addEventListener("input", () => {
-            slider.value = input.value;
+        slider.addEventListener("input", () => {
             update();
-            validateSubcategory(subId, parseInt(input.value, 10) || 0);
+        });
+
+        input.addEventListener("blur", () => {
+
+            let val = input.value.replace(/\D/g, '');
+            if (val.length === 0) val = '100';
+            let numVal = parseInt(val, 10);
+            if (isNaN(numVal) || numVal < 100) numVal = 100;
+            numVal = Math.round(numVal / 100) * 100;
+
+            slider.value = numVal;
+            input.value = numVal;
+            update();
         });
     });
 }
+
+// ----
+
+// Funkcja do wywołania przy kliknięciu ustawiania budżetu/liczby gości
+function onSetBudgetAndGuests() {
+    state.isManualChange = false;  // tryb automatyczny
+    distributeInitialBudgetRespectingFixed(); // pełna automatyczna dystrybucja sliderów i inputów
+}
+
+
 
 const validateBtn = document.getElementById("validateGuestCountBtn");
 if (validateBtn) {
@@ -348,10 +504,14 @@ function distributeInitialBudget() {
         const catInput = document.getElementById(`${catId}-slider_value`);
         if (catSlider && catInput) {
             catSlider.max = state.totalBudget;
-            catSlider.value = catBudget;
+            catSlider.min = 0;
             catSlider.step = 100;
-            catSlider.disabled = false;
+
+            catSlider.value = catBudget;
             catInput.value = catBudget;
+
+            // wymuś event input żeby odświeżyć powiązane handlery
+            catSlider.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         const subs = subcategoryShares[catId];
@@ -391,11 +551,14 @@ function distributeInitialBudgetRespectingFixed() {
         const catSlider = document.getElementById(`${catId}-slider`);
         const catInput = document.getElementById(`${catId}-slider_value`);
         if (catSlider && catInput) {
-            catSlider.value = newCatBudget;
-            catInput.value = newCatBudget;
             catSlider.max = state.totalBudget;
+            catSlider.value = newCatBudget;
             catSlider.step = 100;
             catSlider.disabled = false;
+            catInput.value = newCatBudget;
+
+            // Ręcznie wywołaj update
+            catSlider.dispatchEvent(new Event('input'));
         }
 
         const subs = subcategoryShares[catId];
@@ -412,11 +575,13 @@ function distributeInitialBudgetRespectingFixed() {
             const subSlider = document.getElementById(subId);
             const subInput = document.getElementById(`${subId}_value`);
             if (subSlider && subInput) {
+                subSlider.max = newCatBudget;   // <--- tu zmiana
                 subSlider.value = subBudget;
-                subInput.value = subBudget;
-                subSlider.max = newCatBudget;
                 subSlider.step = 100;
                 subSlider.disabled = false;
+                subInput.value = subBudget;
+
+                subSlider.dispatchEvent(new Event('input'));
             }
         }
 
@@ -424,20 +589,28 @@ function distributeInitialBudgetRespectingFixed() {
     }
 
     updateRemainingBudget();
-    setupSliderHandlers(); // 👈 TO JEST KLUCZ
+    setupSliderHandlers();
+    updateRemainingBudget();
 }
 
 
 // ----
 function updateRemainingBudget() {
-    state.remainingBudget = state.totalBudget - getCurrentAllocatedTotal();
+    let diff = state.totalBudget - getCurrentAllocatedTotal();
+
+    // Uwzględnij tolerancję do ±200 zł dla błędów zaokrągleń
+    if (Math.abs(diff) <= 200) {
+        diff = 0;
+    }
+
+    state.remainingBudget = diff;
 
     const remainingBox = document.getElementById('remainingBudget');
     const pomyslyBudget = document.getElementById('pomyslyBudget');
     const messageBox = document.getElementById('pomyslyMessage');
 
-    const isDeficit = state.remainingBudget < 0;
-    const formatted = Math.abs(state.remainingBudget).toLocaleString();
+    const isDeficit = diff < 0;
+    const formatted = Math.abs(diff).toLocaleString();
     const color = isDeficit ? "red" : "green";
     const text = isDeficit
         ? `Brakuje: ${formatted} zł`
@@ -460,18 +633,30 @@ function updateRemainingBudget() {
     }
 }
 
+
+
 // ----
 function updateSubcategoryRemaining(catId) {
     const catBudget = state.categoryValues[catId] || 0;
     const subBudgets = Object.values(state.subcategoryValues[catId] || {});
     const used = subBudgets.reduce((a, b) => a + b, 0);
-    const remaining = catBudget - used;
+    let remaining = catBudget - used;
+
+    if (remaining >= 100) {
+        // Zaokrąglaj w dół do setek, jeśli większe lub równe 100
+        remaining = Math.floor(remaining / 100) * 100;
+    } else if (remaining > 0 && remaining < 100) {
+        // Jeśli jest między 1 a 99, pokaż 0
+        remaining = 0;
+    }
+    // Jeśli jest zero lub ujemne, pokazuj dokładnie takie wartości, np. -100, -200 itd.
 
     const infoBox = document.getElementById(`subcategoryRemaining-${catId}`);
     if (infoBox) {
         infoBox.textContent = `Pozostało do podziału: ${remaining.toLocaleString()} zł`;
     }
 }
+
 
 // ----
 function redistributeSubcategories(catId) {
@@ -663,16 +848,14 @@ function validateSubcategory(subId, value) {
     if (value < minValue) {
         const message = `Kwota może być zbyt niska (minimum: ${minValue.toLocaleString("pl-PL")} zł dla ${state.guestCount} osób.`;
         warningBox.textContent = message;
-        // warningBox.style.color = "red";
+        warningBox.classList.remove("success", "info");
         warningBox.classList.add("warning");
-        warningBox.classList.remove("success");
         state.validationMessages[subId] = message;
     } else {
         const message = `Kwota mieści si w średniej cenowej dla ${state.guestCount} osób).`;
         warningBox.textContent = message;
-        // warningBox.style.color = "green";
+        warningBox.classList.remove("warning", "info");
         warningBox.classList.add("success");
-        warningBox.classList.remove("warning");
         delete state.validationMessages[subId];
     }
 }
@@ -686,9 +869,8 @@ function checkPricesHandler() {
             if (!warningBox) return;
 
             if (isFixed) {
-                const message = `Kwota jest zablokowana – nie podlega walidacji.`;
+                const message = `Kwota jest zablokowana - nie podlega walidacji.`;
                 warningBox.textContent = message;
-                // warningBox.style.color = "gray";
                 warningBox.classList.remove("warning", "success");
                 warningBox.classList.add("info");
                 state.validationMessages[subId] = message;
@@ -732,7 +914,6 @@ function togglePriceValidationMessages(show) {
                 if (isFixed) {
                     const message = `Kwota jest zablokowana - nie podlega walidacji.`;
                     warningBox.textContent = message;
-                    warningBox.style.color = "gray";
                     warningBox.classList.remove("warning", "success");
                     warningBox.classList.add("info");
                     state.validationMessages[subId] = message;

@@ -35,25 +35,17 @@ get_header();
     <form id="register-form">
 
         <div class="budget-box">
-            <!-- <div class="budget-box-details"> -->
-            <!-- <span class="say-yes">Say-Yes-Weeding</span> -->
             <span id="remainingBudget">Pozostało: 0 zł</span>
             <label for="guestCount">Liczba gości:</label>
-            <input type="number" id="guestCount" placeholder="Goście" min="0" max="10000" step="1">
+            <input type="number" id="guestCount" placeholder="Goście" min="6" max="10000" step="1">
             <button id="changeGuestsBtn" type="button">Ustaw</button>
+            <button id="autoBudgetBtn" type="button">Auto Budżet</button>
             <label for="budgetTotal">Budżet? (PLN)</label>
-            <input type="number" id="budgetTotal" placeholder="Budżet" min="0" max="100000000" step="100" />
+            <input type="number" id="budgetTotal" placeholder="Budżet" min="5000" max="100000000" step="100" />
             <button id="changeBudgetBtn" type="button">Ustaw</button>
+            <button id="addFundsBtn" type="button">Zaktualziuj budżet</button>
             <button id="checkPricesBtn" type="button">Sprawdź sugestie cen</button>
             <span id="tooltip"></span>
-            <!-- <button id="validateGuestCountBtn" type="button">Sprawdź minimalne kwoty</button> -->
-
-            <!-- </div>
-
-            <div class="budget-box-details">
-
-            </div> -->
-
         </div>
 
         <div class="categories-container">

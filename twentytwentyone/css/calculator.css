@@ -98,7 +98,7 @@ body {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 8px;
     background-color: var(--color-bg);
     padding: 1rem;
     border-radius: 10px;
@@ -255,6 +255,9 @@ body {
     font-style: italic;
 }
 
+#tooltip:empty {
+    display: none;
+}
 
 #remainingBudget {
     /* flex-basis: 100%;
